@@ -2,8 +2,10 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
-import TitleBar from "./TitleBar";
+import App from "./App";
 import {createTheme, ThemeProvider} from "@mui/material";
+import {Auth0Provider} from "@auth0/auth0-react";
+import Box from "@mui/material/Box";
 
 const theme = createTheme({
     palette: {
@@ -17,9 +19,24 @@ const theme = createTheme({
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
     <React.StrictMode>
-        <ThemeProvider theme={theme}>
-            <TitleBar/>
-        </ThemeProvider>
+        <Auth0Provider
+            domain={process.env.REACT_APP_AUTH_DOMAIN}
+            clientId={process.env.REACT_APP_CLIENT_ID}
+            authorizationParams={{
+                redirect_uri: process.env.REACT_APP_REDIRECT_URI
+            }}
+        >
+            <ThemeProvider theme={theme}>
+                <Box sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: '100vh',
+                }}
+                >
+                    <App />
+                </Box>
+            </ThemeProvider>
+        </Auth0Provider>
     </React.StrictMode>
 );
 
