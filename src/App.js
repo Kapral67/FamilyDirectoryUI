@@ -3,6 +3,7 @@ import Content from "./Content";
 
 export default function App() {
 
+    // FIXME: UNCOMMENT THIS BEFORE PROD
     // const {
     //     isAuthenticated,
     //     loginWithRedirect,
