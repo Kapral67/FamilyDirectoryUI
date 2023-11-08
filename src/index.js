@@ -42,7 +42,8 @@ Amplify.configure({
                 endpoint: process.env.REACT_APP_API_DOMAIN
             }
         ]
-    }
+    },
+    storage: sessionStorage
 });
 
 const theme = createTheme({

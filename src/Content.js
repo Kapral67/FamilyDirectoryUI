@@ -7,8 +7,20 @@ import EditIcon from '@mui/icons-material/Edit';
 import {AdapterDayjs} from '@mui/x-date-pickers/AdapterDayjs';
 import {LocalizationProvider} from '@mui/x-date-pickers/LocalizationProvider';
 import {DatePicker} from '@mui/x-date-pickers/DatePicker';
+import {Auth, API} from "aws-amplify";
 
 export default function Content() {
+
+    const getMember = async () => {
+        let response = await API.get('HttpApi', '/get', {
+            headers: {
+                Authorization: `Bearer ${(await Auth.currentSession()).getAccessToken().getJwtToken()}`
+            }
+        });
+        console.log(response);
+    };
+
+    // void getMember();
 
     const [isEditing, setIsEditing] = useState(false);
 
@@ -80,14 +92,12 @@ export default function Content() {
                             {/*</Grid>*/}
                             <Grid item xs={12} sm={4} md={4}>
                                 <Typography variant="body2">
-                                    <b>Email:</b> <ContentCopyIcon fontSize="x-small" onClick={handleEmailClick} style={{ cursor: 'pointer' }} />
+                                    <b>Email:</b> <Tooltip title="Click to copy"><ContentCopyIcon fontSize="x-small" onClick={handleEmailClick} style={{ cursor: 'pointer' }} /></Tooltip>
                                 </Typography>
-                                <Tooltip title="Click to copy">
-                                    <Typography variant="body2" style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                        {email}
-                                    </Typography>
-                                </Tooltip>
-                                <Snackbar open={emailSnackbarOpen} autoHideDuration={6000} onClose={handleEmailSnackbarClose} message="Email copied to clipboard" />
+                                <Typography variant="body2" style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                    {email}
+                                </Typography>
+                                <Snackbar open={emailSnackbarOpen} autoHideDuration={2000} onClose={handleEmailSnackbarClose} message="Email copied to clipboard" />
                             </Grid>
                             <Grid item xs={12} sm={4} md={4}>
                                 <Typography variant="body2">

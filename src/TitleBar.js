@@ -11,7 +11,7 @@ export default function TitleBar() {
     const handleDownloadClick = async () => {
         let blob = await API.get('HttpApi', '/pdf', {
             headers: {
-                Authorization:`Bearer ${(await Auth.currentSession()).getAccessToken().getJwtToken()}`
+                Authorization: `Bearer ${(await Auth.currentSession()).getAccessToken().getJwtToken()}`
             },
             responseType: 'blob'
         });
