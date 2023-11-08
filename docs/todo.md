@@ -2,4 +2,4 @@
 
 - [ ] Add `amplify.yml`
 - [ ] Figure out how to dynamically create and update Content
-- [ ] Configure npm dependabot updatesit
+- [ ] Configure npm dependabot updates
