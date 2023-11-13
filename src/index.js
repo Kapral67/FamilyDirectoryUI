@@ -5,23 +5,15 @@ import './index.css';
 import reportWebVitals from './reportWebVitals';
 import App from "./App";
 import {createTheme, ThemeProvider} from "@mui/material";
-import Box from "@mui/material/Box";
+
+document.title = `${process.env.REACT_APP_SURNAME} Family Directory`;
 
 Amplify.configure({
     Auth: {
-        // REQUIRED - Amazon Cognito Region
         region: process.env.REACT_APP_AWS_REGION,
-
-        // OPTIONAL - Amazon Cognito User Pool ID
         userPoolId: process.env.REACT_APP_USER_POOL_ID,
-
-        // OPTIONAL - Amazon Cognito Web Client ID (26-char alphanumeric string)
         userPoolWebClientId: process.env.REACT_APP_CLIENT_ID,
-
-        // OPTIONAL - Enforce user authentication prior to accessing AWS resources or not
         mandatorySignIn: true,
-
-        // OPTIONAL - Hosted UI configuration
         oauth: {
             domain: process.env.REACT_APP_AUTH_DOMAIN,
             scope: [
@@ -52,6 +44,9 @@ const theme = createTheme({
         primary: {
             main: '#888888'
         },
+        secondary: {
+            main: '#ffffff'
+        }
     },
 });
 
@@ -59,14 +54,7 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
     <React.StrictMode>
         <ThemeProvider theme={theme}>
-            <Box sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                height: '100vh',
-            }}
-            >
-                <App />
-            </Box>
+            <App />
         </ThemeProvider>
     </React.StrictMode>
 );
@@ -74,4 +62,4 @@ root.render(
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals(console.log);
+reportWebVitals();

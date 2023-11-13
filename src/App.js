@@ -1,8 +1,9 @@
 import TitleBar from "./TitleBar";
 import Content from "./Content";
-import Loading from "./Loading";
 import {Auth} from "aws-amplify";
 import {useEffect, useState} from "react";
+import Box from "@mui/material/Box";
+import {CircularProgress} from "@mui/material";
 
 export default function App() {
 
@@ -17,13 +18,24 @@ export default function App() {
     }, []);
 
     if (isLoading) {
-        return <Loading />;
+        return (
+            <Box
+                sx={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: '100vh'
+                }}
+            >
+                <CircularProgress />
+            </Box>
+        );
     }
 
     return (
         <>
-        <TitleBar />
-        <Content />
+            <TitleBar />
+            <Content />
         </>
     );
 }

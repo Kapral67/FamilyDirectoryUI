@@ -3,6 +3,7 @@ import {
     Card,
     CardContent,
     CardHeader,
+    CircularProgress,
     Container,
     Grid,
     IconButton,
@@ -20,7 +21,7 @@ import {AdapterDayjs} from '@mui/x-date-pickers/AdapterDayjs';
 import {LocalizationProvider} from '@mui/x-date-pickers/LocalizationProvider';
 import {DatePicker} from '@mui/x-date-pickers/DatePicker';
 import {Auth, API} from "aws-amplify";
-import Loading from "./Loading";
+import {Upcoming} from "@mui/icons-material";
 
 async function getMember (id) {
     let init = {
@@ -36,94 +37,71 @@ async function getMember (id) {
     return await API.get('HttpApi', '/get', init);
 }
 
+function getDate(date) {
+    return new Date(date).toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+        timeZone: 'UTC'
+    });
+}
+
 function displayBirthday(data) {
     return (
-        <Grid item xs={12} sm={4} md={4}>
+        <Grid item>
             <Typography variant="body2">
                 <b>Birthday:</b>
             </Typography>
             <Typography variant="body2">
-                {new Date(data['member']['birthday']).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' })}
+                {getDate(data['birthday'])}
             </Typography>
         </Grid>
     );
 }
 
 function displayDeathday (data) {
-    return 'deathday' in data['member'] ? (
-        <Grid item xs={12} sm={4} md={4}>
-            <Typography variant="body2">
-                <b>Deathday:</b>
-            </Typography>
-            <Typography variant="body2">
-                {new Date(data['member']['deathday']).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' })}
-            </Typography>
+    return 'deathday' in data ? (
+        <Grid item>
+            <Typography variant="body2"><b>Deathday:</b></Typography>
+            <Typography variant="body2">{getDate(data['deathday'])}</Typography>
         </Grid>
-    ) : (
-        <>
-        </>
-    );
+    ) : (<></>);
 }
 
 function displayEmail (data) {
-    return 'email' in data['member'] ? (
-        <Grid item xs={12} sm={4} md={4}>
-            <Typography variant="body2">
-                <b>Email:</b>
-            </Typography>
-            <Typography variant="body2">
-                {data['member']['email']}
-            </Typography>
+    return 'email' in data ? (
+        <Grid item>
+            <Typography variant="body2"><b>Email:</b></Typography>
+            <Typography variant="body2">{data['email']}</Typography>
         </Grid>
-    ) : (
-        <>
-        </>
-    );
+    ) : (<></>);
 }
 
 function displayPhones (data) {
-    if ('phones' in data['member'] && ('MOBILE' in data['member']['phones'] || 'LANDLINE' in data['member']['phones'])) {
-        if ('LANDLINE' in data['member']['phones'] && 'MOBILE' in data['member']['phones']) {
+    if ('phones' in data && ('MOBILE' in data['phones'] || 'LANDLINE' in data['phones'])) {
+        if ('LANDLINE' in data['phones'] && 'MOBILE' in data['phones']) {
+            return (<>
+                        <Grid item>
+                            <Typography variant="body2"><b>Mobile Phone:</b></Typography>
+                            <Typography variant="body2">{data['phones']['MOBILE']}</Typography>
+                        </Grid>
+                        <Grid item>
+                            <Typography variant="body2"><b>Landline Phone:</b></Typography>
+                            <Typography variant="body2">{data['phones']['LANDLINE']}</Typography>
+                        </Grid>
+                    </>);
+        }else if ('MOBILE' in data['phones']) {
             return (
-                <>
-                    <Grid item xs={12} sm={4} md={4}>
-                        <Typography variant="body2">
-                            <b>Mobile Phone:</b>
-                        </Typography>
-                        <Typography variant="body2">
-                            {data['member']['phones']['MOBILE']}
-                        </Typography>
-                    </Grid>
-                    <Grid item xs={12} sm={4} md={4}>
-                        <Typography variant="body2">
-                            <b>Landline Phone:</b>
-                        </Typography>
-                        <Typography variant="body2">
-                            {data['member']['phones']['LANDLINE']}
-                        </Typography>
-                    </Grid>
-                </>
-            );
-        }else if ('MOBILE' in data['member']['phones']) {
-            return (
-                <Grid item xs={12} sm={4} md={4}>
-                    <Typography variant="body2">
-                        <b>Mobile Phone:</b>
-                    </Typography>
-                    <Typography variant="body2">
-                        {data['member']['phones']['MOBILE']}
-                    </Typography>
+                <Grid item>
+                    <Typography variant="body2"><b>Mobile Phone:</b></Typography>
+                    <Typography variant="body2">{data['phones']['MOBILE']}</Typography>
                 </Grid>
             );
         } else {
             return (
-                <Grid item xs={12} sm={4} md={4}>
-                    <Typography variant="body2">
-                        <b>Landline Phone:</b>
-                    </Typography>
-                    <Typography variant="body2">
-                        {data['member']['phones']['LANDLINE']}
-                    </Typography>
+                <Grid item>
+                    <Typography variant="body2"><b>Landline Phone:</b></Typography>
+                    <Typography variant="body2">{data['phones']['LANDLINE']}</Typography>
                 </Grid>
             );
         }
@@ -133,20 +111,37 @@ function displayPhones (data) {
 }
 
 function displayAddress (data) {
-    if ('address' in data['member']) {
-        return (
-            <Grid item xs={12} sm={4} md={4}>
-                <Typography variant="body2">
-                    <b>Address:</b>
-                </Typography>
-                <Typography variant="body2" style={{whiteSpace: 'pre-line'}}>
-                    {data['member']['address'].join('\n')}
-                </Typography>
-            </Grid>
-        );
-    } else {
-        return (<></>);
-    }
+    return 'address' in data ? (
+        <Grid item>
+            <Typography variant="body2"><b>Address:</b></Typography>
+            <Typography variant="body2" style={{whiteSpace: 'pre-line'}}>{data['address'].join('\n')}</Typography>
+        </Grid>
+    ) : (<></>);
+}
+
+function displayCard (data) {
+    return (
+        <Card sx={{ width: '75%', margin: 'auto', display: 'block' }}>
+            <CardContent>
+                <CardHeader
+                    title={['firstName', 'middleName', 'lastName', 'suffix'].map(key => data[key]).filter(Boolean).join(' ')}
+                />
+                <Grid container
+                      spacing={1}
+                      columnSpacing={{ xs: 12, sm: 8, md: 6 }}
+                      direction={'row'}
+                      justifyContent={'space-evenly'}
+                      alignItems={'center'}
+                >
+                    {displayBirthday(data)}
+                    {displayDeathday(data)}
+                    {displayEmail(data)}
+                    {displayPhones(data)}
+                    {displayAddress(data)}
+                </Grid>
+            </CardContent>
+        </Card>
+    );
 }
 
 export default function Content() {
@@ -168,33 +163,65 @@ export default function Content() {
     }, [id]);
 
     if (isLoading) {
-        return <Loading />;
+        return (
+            <Box
+                sx={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: 'calc(100vh - 64px)'
+                }}
+            >
+                <CircularProgress />
+            </Box>
+        );
     }
 
+    const cardMd = ('spouse' in data) ? 6 : 12;
+
     return (
-        <>
-            <IconButton
-                size="large"
-                aria-label="Download"
-                color="inherit"
-                onClick={() => setId(data['family']['ancestor'])}
+        <Box
+            sx={{
+                overflowY: 'auto',
+                overflowX: 'hidden',
+                position: 'relative',
+                display: 'flex',
+                flexWrap: 'wrap',
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: 'calc(100vh - 64px)'
+            }}
+        >
+            <Grid container
+                  spacing={1}
+                  columnSpacing={{ xs: 12 }}
+                  direction={'column'}
+                  alignItems={'center'}
             >
-                <ArrowUpwardIcon />
-            </IconButton>
-            <Card sx={{ width: '75%', margin: 'auto', display: 'block' }}>
-                <CardContent>
-                    <CardHeader
-                        title={['firstName', 'middleName', 'lastName', 'suffix'].map(key => data['member'][key]).filter(Boolean).join(' ')}
-                    />
-                    <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
-                        {displayBirthday(data)}
-                        {displayDeathday(data)}
-                        {displayEmail(data)}
-                        {displayPhones(data)}
-                        {displayAddress(data)}
+                { data['ancestor'] !== data['member']['familyId'] && (
+                    <Grid item>
+                        <IconButton
+                            size={'large'}
+                            color={'inherit'}
+                            onClick={() => setId(data['ancestor'])}
+                        >
+                            <ArrowUpwardIcon/>
+                        </IconButton>
                     </Grid>
-                </CardContent>
-            </Card>
-        </>
+                )}
+                <Grid item>
+                    <Grid container spacing={2}>
+                        <Grid item xs={12} md={cardMd}>
+                            {displayCard(data['member'])}
+                        </Grid>
+                        { 'spouse' in data && (
+                            <Grid item xs={12} md={6}>
+                                {displayCard(data['spouse'])}
+                            </Grid>
+                        )}
+                    </Grid>
+                </Grid>
+            </Grid>
+        </Box>
     );
 }

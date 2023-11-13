@@ -2,13 +2,17 @@ import {Auth, API} from "aws-amplify";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import {IconButton} from "@mui/material";
+import {CircularProgress, IconButton} from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import DownloadIcon from '@mui/icons-material/Download';
+import {useState} from "react";
 
 export default function TitleBar() {
 
+    const [isDownloading, setIsDownloading] = useState(false);
+
     const handleDownloadClick = async () => {
+        setIsDownloading(true);
         let blob = await API.get('HttpApi', '/pdf', {
             headers: {
                 Authorization: `Bearer ${(await Auth.currentSession()).getAccessToken().getJwtToken()}`
@@ -23,22 +27,29 @@ export default function TitleBar() {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        setIsDownloading(false);
     };
 
     return (
         <AppBar position="static">
             <Toolbar>
-                <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                    {process.env.REACT_APP_SURNAME} Family Directory
+                <Typography variant={'h6'} sx={{ flexGrow: 1 }}>
+                    {`${process.env.REACT_APP_SURNAME} Family Directory`}
                 </Typography>
-                <IconButton
-                    size="large"
-                    aria-label="Download"
-                    color="inherit"
-                    onClick={handleDownloadClick}
-                >
-                    <DownloadIcon />
-                </IconButton>
+                { isDownloading ? (
+                    <IconButton disabled>
+                        <CircularProgress color={'secondary'} size={'2rem'} />
+                    </IconButton>
+                ) : (
+                    <IconButton
+                        size="large"
+                        aria-label="Download"
+                        color="inherit"
+                        onClick={handleDownloadClick}
+                    >
+                        <DownloadIcon />
+                    </IconButton>
+                )}
                 <IconButton
                     size="large"
                     aria-label="Logout"
