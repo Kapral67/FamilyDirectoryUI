@@ -123,6 +123,25 @@ function displayAddress (data) {
 }
 
 function displayCard (data, isDescendant = false) {
+    let isEditable = false;
+    if (!isDescendant) {
+        isEditable = data['id'] === caller['member']['id'];
+        if (!isEditable && 'spouse' in caller) {
+            isEditable = data['id'] === caller['spouse']['id'];
+        }
+        if (!isEditable && 'descendants' in caller) {
+            isEditable = caller['descendants'].some(descendant => {
+                if (descendant['id'] === data['id']) {
+                    const dateParts = descendant['birthday'].split('-').map(Number);
+                    const date = new Date(Date.UTC(dateParts[0], dateParts[1] - 1, dateParts[2]));
+                    const now = new Date();
+                    return date.getTime() <= new Date(Date.UTC(now.getUTCFullYear() - 18, now.getUTCMonth(), now.getUTCDate())).getTime();
+                } else {
+                    return false;
+                }
+            });
+        }
+    }
     return (
         <Card sx={{ width: '75%', margin: 'auto', display: 'block' }}>
             <CardContent>
@@ -130,7 +149,11 @@ function displayCard (data, isDescendant = false) {
                     title={['firstName', 'middleName', 'lastName', 'suffix'].map(key => data[key]).filter(Boolean).join(' ')}
                     action={isDescendant ? (
                                 <IconButton onClick={() => setId(data['id'])}>
-                                    <TrendingDownIcon/>
+                                    <TrendingDownIcon />
+                                </IconButton>
+                            ) : isEditable ? (
+                                <IconButton>
+                                    <EditIcon />
                                 </IconButton>
                             ) : (<></>)
                     }
