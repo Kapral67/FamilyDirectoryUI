@@ -14,6 +14,7 @@ import {
 import Typography from '@mui/material/Typography';
 import {useEffect, useState} from 'react';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import Box from '@mui/material/Box';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import EditIcon from '@mui/icons-material/Edit';
@@ -22,6 +23,8 @@ import {LocalizationProvider} from '@mui/x-date-pickers/LocalizationProvider';
 import {DatePicker} from '@mui/x-date-pickers/DatePicker';
 import {Auth, API} from "aws-amplify";
 import {Upcoming} from "@mui/icons-material";
+
+let setId, caller;
 
 async function getMember (id) {
     let init = {
@@ -119,12 +122,18 @@ function displayAddress (data) {
     ) : (<></>);
 }
 
-function displayCard (data) {
+function displayCard (data, isDescendant = false) {
     return (
         <Card sx={{ width: '75%', margin: 'auto', display: 'block' }}>
             <CardContent>
                 <CardHeader
                     title={['firstName', 'middleName', 'lastName', 'suffix'].map(key => data[key]).filter(Boolean).join(' ')}
+                    action={isDescendant ? (
+                                <IconButton onClick={() => setId(data['id'])}>
+                                    <TrendingDownIcon/>
+                                </IconButton>
+                            ) : (<></>)
+                    }
                 />
                 <Grid container
                       spacing={1}
@@ -145,10 +154,12 @@ function displayCard (data) {
 }
 
 export default function Content() {
+    let id;
+    [id, setId] = useState(null);
+    let setCaller;
+    [caller, setCaller] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [id, setId] = useState(null);
     const [data, setData] = useState(null);
-    const [caller, setCaller] = useState(null);
 
     useEffect(() => {
         async function getData(id) {
@@ -225,10 +236,10 @@ export default function Content() {
                             <br/><hr style={{ width: '50%' }}/><br/>
                         </Grid>
                         <Grid item>
-                            <Grid container spacing={1}>
+                            <Grid container spacing={1} justifyContent={'center'}>
                                 {data['descendants'].map((descendant) => (
-                                    <Grid item xs={12} sm={6} md={4} key={descendant['id']}>
-                                        {displayCard(descendant)}
+                                    <Grid item key={descendant['id']}>
+                                        {displayCard(descendant, true)}
                                     </Grid>
                                 ))}
                             </Grid>
