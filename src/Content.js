@@ -4,7 +4,7 @@ import {
     CardContent,
     CardHeader,
     CircularProgress,
-    Container,
+    Container, Divider,
     Grid,
     IconButton,
     Snackbar,
@@ -177,8 +177,6 @@ export default function Content() {
         );
     }
 
-    const cardMd = ('spouse' in data) ? 6 : 12;
-
     return (
         <Box
             sx={{
@@ -211,16 +209,32 @@ export default function Content() {
                 )}
                 <Grid item>
                     <Grid container spacing={2}>
-                        <Grid item xs={12} md={cardMd}>
+                        <Grid item xs={12} sm={'spouse' in data ? 6 : 12}>
                             {displayCard(data['member'])}
                         </Grid>
                         { 'spouse' in data && (
-                            <Grid item xs={12} md={6}>
+                            <Grid item xs={12} sm={6}>
                                 {displayCard(data['spouse'])}
                             </Grid>
                         )}
                     </Grid>
                 </Grid>
+                { 'descendants' in data && (
+                    <>
+                        <Grid item xs={12} style={{ alignSelf: "stretch" }}>
+                            <br/><hr style={{ width: '50%' }}/><br/>
+                        </Grid>
+                        <Grid item>
+                            <Grid container spacing={1}>
+                                {data['descendants'].map((descendant) => (
+                                    <Grid item xs={12} sm={6} md={4} key={descendant['id']}>
+                                        {displayCard(descendant)}
+                                    </Grid>
+                                ))}
+                            </Grid>
+                        </Grid>
+                    </>
+                )}
             </Grid>
         </Box>
     );
