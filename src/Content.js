@@ -24,7 +24,15 @@ import {DatePicker} from '@mui/x-date-pickers/DatePicker';
 import {Auth, API} from "aws-amplify";
 import {Upcoming} from "@mui/icons-material";
 
-let setId, caller;
+let setId, caller, setCaller, setData, setIsEditing;
+
+async function getData(id) {
+    const data = await getMember(id);
+    if (id === null) {
+        setCaller(data);
+    }
+    setData(data);
+}
 
 async function getMember (id) {
     let init = {
@@ -135,7 +143,7 @@ function displayCard (data, isDescendant = false) {
                     const dateParts = descendant['birthday'].split('-').map(Number);
                     const date = new Date(Date.UTC(dateParts[0], dateParts[1] - 1, dateParts[2]));
                     const now = new Date();
-                    return date.getTime() <= new Date(Date.UTC(now.getUTCFullYear() - 18, now.getUTCMonth(), now.getUTCDate())).getTime();
+                    return date.getTime() <= new Date(Date.UTC(now.getUTCFullYear() - +process.env.REACT_APP_AGE_OF_MAJORITY, now.getUTCMonth(), now.getUTCDate())).getTime();
                 } else {
                     return false;
                 }
@@ -152,7 +160,7 @@ function displayCard (data, isDescendant = false) {
                                     <TrendingDownIcon />
                                 </IconButton>
                             ) : isEditable ? (
-                                <IconButton>
+                                <IconButton onClick={() => setIsEditing(true)}>
                                     <EditIcon />
                                 </IconButton>
                             ) : (<></>)
@@ -179,19 +187,14 @@ function displayCard (data, isDescendant = false) {
 export default function Content() {
     let id;
     [id, setId] = useState(null);
-    let setCaller;
     [caller, setCaller] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [data, setData] = useState(null);
+    let data;
+    [data, setData] = useState(null);
+    let isEditing;
+    [isEditing, setIsEditing] = useState(false);
 
     useEffect(() => {
-        async function getData(id) {
-            const data = await getMember(id);
-            if (id === null) {
-                setCaller(data);
-            }
-            setData(data);
-        }
         setIsLoading(true);
         getData(id).then(() => setIsLoading(false));
     }, [id]);
@@ -230,43 +233,49 @@ export default function Content() {
                   direction={'column'}
                   alignItems={'center'}
             >
-                { data['ancestor'] !== data['member']['familyId'] && (
-                    <Grid item>
-                        <IconButton
-                            size={'large'}
-                            color={'inherit'}
-                            onClick={() => setId(data['ancestor'])}
-                        >
-                            <ArrowUpwardIcon/>
-                        </IconButton>
-                    </Grid>
-                )}
-                <Grid item>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12} sm={'spouse' in data ? 6 : 12}>
-                            {displayCard(data['member'])}
-                        </Grid>
-                        { 'spouse' in data && (
-                            <Grid item xs={12} sm={6}>
-                                {displayCard(data['spouse'])}
+                { isEditing ? (
+                    <></>
+                ) : (
+                    <>
+                        {data['ancestor'] !== data['member']['familyId'] && (
+                            <Grid item>
+                                <IconButton
+                                    size={'large'}
+                                    color={'inherit'}
+                                    onClick={() => setId(data['ancestor'])}
+                                >
+                                    <ArrowUpwardIcon/>
+                                </IconButton>
                             </Grid>
                         )}
-                    </Grid>
-                </Grid>
-                { 'descendants' in data && (
-                    <>
-                        <Grid item xs={12} style={{ alignSelf: "stretch" }}>
-                            <br/><hr style={{ width: '50%' }}/><br/>
-                        </Grid>
                         <Grid item>
-                            <Grid container spacing={1} justifyContent={'center'}>
-                                {data['descendants'].map((descendant) => (
-                                    <Grid item key={descendant['id']}>
-                                        {displayCard(descendant, true)}
+                            <Grid container spacing={2}>
+                                <Grid item xs={12} sm={'spouse' in data ? 6 : 12}>
+                                    {displayCard(data['member'])}
+                                </Grid>
+                                { 'spouse' in data && (
+                                    <Grid item xs={12} sm={6}>
+                                        {displayCard(data['spouse'])}
                                     </Grid>
-                                ))}
+                                )}
                             </Grid>
                         </Grid>
+                        {'descendants' in data && (
+                            <>
+                                <Grid item xs={12} style={{ alignSelf: "stretch" }}>
+                                    <br/><hr style={{ width: '50%' }}/><br/>
+                                </Grid>
+                                <Grid item>
+                                    <Grid container spacing={1} justifyContent={'center'}>
+                                        {data['descendants'].map((descendant) => (
+                                            <Grid item key={descendant['id']}>
+                                                {displayCard(descendant, true)}
+                                            </Grid>
+                                        ))}
+                                    </Grid>
+                                </Grid>
+                            </>
+                        )}
                     </>
                 )}
             </Grid>
