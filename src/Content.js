@@ -1,12 +1,11 @@
 import {
-    Button,
     Card,
     CardContent,
     CardHeader,
     CircularProgress,
-    Container, Divider,
+    FormControl, FormLabel,
     Grid,
-    IconButton,
+    IconButton, InputLabel, MenuItem, Select,
     Snackbar,
     TextField,
     Tooltip
@@ -14,15 +13,17 @@ import {
 import Typography from '@mui/material/Typography';
 import {useEffect, useState} from 'react';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import EditOffIcon from '@mui/icons-material/EditOff';
+import SaveAsIcon from '@mui/icons-material/SaveAs';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import Box from '@mui/material/Box';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import EditIcon from '@mui/icons-material/Edit';
-import {AdapterDayjs} from '@mui/x-date-pickers/AdapterDayjs';
-import {LocalizationProvider} from '@mui/x-date-pickers/LocalizationProvider';
 import {DatePicker} from '@mui/x-date-pickers/DatePicker';
 import {Auth, API} from "aws-amplify";
 import {Upcoming} from "@mui/icons-material";
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 
 let setId, caller, setCaller, setData, setIsEditing;
 
@@ -130,6 +131,69 @@ function displayAddress (data) {
     ) : (<></>);
 }
 
+function displayEditCard (data) {
+    return (
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <Card sx={{ width: '100%', margin: 'auto', display: 'block' }}>
+                <CardContent>
+                    <Box component={'form'}>
+                        <Grid container
+                              spacing={2}
+                              direction={'column'}
+                              justifyContent={'space-evenly'}
+                              alignItems={'stretch'}
+                        >
+                            <Grid item>
+                                <TextField label={'First Name'} required fullWidth/>
+                            </Grid>
+                            <Grid item>
+                                <TextField label={'Middle Name'} fullWidth/>
+                            </Grid>
+                            <Grid item>
+                                <TextField label={'Last Name'} required fullWidth/>
+                            </Grid>
+                            <Grid item>
+                                <TextField label={'Suffix'} select fullWidth>
+                                    <MenuItem value={'JR'}>Jr</MenuItem>
+                                    <MenuItem value={'SR'}>Sr</MenuItem>
+                                </TextField>
+                            </Grid>
+                            <Grid item>
+                                <TextField label={'Email'} fullWidth/>
+                            </Grid>
+                            <Grid item>
+                                <TextField label={'Address Line 1'} fullWidth/>
+                            </Grid>
+                            <Grid item>
+                                <TextField label={'Address Line 2'} fullWidth/>
+                            </Grid>
+                            <Grid item>
+                                <TextField label={'Mobile Phone'} fullWidth/>
+                            </Grid>
+                            <Grid item>
+                                <TextField label={'Landline Phone'} fullWidth/>
+                            </Grid>
+                        </Grid>
+                    </Box>
+                    <Grid container justifyContent={'space-between'}>
+                        <Grid item xs={12} style={{ alignSelf: 'stretch' }}><br/></Grid>
+                        <Grid item>
+                            <IconButton onClick={() => setIsEditing(false)}>
+                                <EditOffIcon />
+                            </IconButton>
+                        </Grid>
+                        <Grid item>
+                            <IconButton>
+                                <SaveAsIcon />
+                            </IconButton>
+                        </Grid>
+                    </Grid>
+                </CardContent>
+            </Card>
+        </LocalizationProvider>
+    );
+}
+
 function displayCard (data, isDescendant = false) {
     let isEditable = false;
     if (!isDescendant) {
@@ -234,7 +298,9 @@ export default function Content() {
                   alignItems={'center'}
             >
                 { isEditing ? (
-                    <></>
+                    <Grid item sx={{ width: '75%' }}>
+                        {displayEditCard(data['member'])}
+                    </Grid>
                 ) : (
                     <>
                         {data['ancestor'] !== data['member']['familyId'] && (
@@ -262,7 +328,7 @@ export default function Content() {
                         </Grid>
                         {'descendants' in data && (
                             <>
-                                <Grid item xs={12} style={{ alignSelf: "stretch" }}>
+                                <Grid item xs={12} style={{ alignSelf: 'stretch' }}>
                                     <br/><hr style={{ width: '50%' }}/><br/>
                                 </Grid>
                                 <Grid item>
