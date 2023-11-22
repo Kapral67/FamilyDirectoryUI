@@ -22,6 +22,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import {DatePicker} from '@mui/x-date-pickers/DatePicker';
 import {Auth, API} from "aws-amplify";
 import {Upcoming} from "@mui/icons-material";
+import dayjs from 'dayjs';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 
@@ -144,34 +145,139 @@ function displayEditCard (data) {
                               alignItems={'stretch'}
                         >
                             <Grid item>
-                                <TextField label={'First Name'} required fullWidth/>
+                                <TextField
+                                    label={'First Name'}
+                                    required
+                                    fullWidth
+                                    defaultValue={data['firstName']}
+                                />
                             </Grid>
                             <Grid item>
-                                <TextField label={'Middle Name'} fullWidth/>
+                                { 'middleName' in data ? (
+                                    <TextField
+                                        label={'Middle Name'}
+                                        fullWidth
+                                        defaultValue={data['middleName']}
+                                    />
+                                ) : (
+                                    <TextField
+                                        label={'Middle Name'}
+                                        fullWidth
+                                    />
+                                ) }
                             </Grid>
                             <Grid item>
-                                <TextField label={'Last Name'} required fullWidth/>
+                                <TextField
+                                    label={'Last Name'}
+                                    required
+                                    fullWidth
+                                    defaultValue={data['lastName']}
+                                />
                             </Grid>
                             <Grid item>
-                                <TextField label={'Suffix'} select fullWidth>
-                                    <MenuItem value={'JR'}>Jr</MenuItem>
-                                    <MenuItem value={'SR'}>Sr</MenuItem>
-                                </TextField>
+                                {'suffix' in data ? (
+                                    <TextField
+                                        label={'Suffix'}
+                                        select
+                                        fullWidth
+                                        defaultValue={data['suffix']}
+                                    >
+                                        <MenuItem value={''}><i>None</i></MenuItem>
+                                        <MenuItem value={'Jr'}>Jr</MenuItem>
+                                        <MenuItem value={'Sr'}>Sr</MenuItem>
+                                    </TextField>
+                                ) : (
+                                    <TextField
+                                        label={'Suffix'}
+                                        select
+                                        fullWidth
+                                    >
+                                        <MenuItem value={''}><i>None</i></MenuItem>
+                                        <MenuItem value={'Jr'}>Jr</MenuItem>
+                                        <MenuItem value={'Sr'}>Sr</MenuItem>
+                                    </TextField>
+                                )}
                             </Grid>
                             <Grid item>
-                                <TextField label={'Email'} fullWidth/>
+                                <DatePicker
+                                    sx={{ width: '50%' }}
+                                    label={'Birthday'}
+                                    disableFuture
+                                    defaultValue={dayjs(data['birthday'])}
+                                />
+                                {'deathday' in data ? (
+                                    <DatePicker
+                                        sx={{ width: '50%' }}
+                                        label={'Deathday'}
+                                        disableFuture
+                                        defaultValue={dayjs(data['deathday'])}
+                                    />
+                                ) : (
+                                    <DatePicker
+                                        sx={{ width: '50%' }}
+                                        label={'Deathday'}
+                                        disableFuture
+                                    />
+                                )}
                             </Grid>
                             <Grid item>
-                                <TextField label={'Address Line 1'} fullWidth/>
+                                {'email' in data ? (
+                                    <TextField
+                                        label={'Email'}
+                                        fullWidth
+                                        defaultValue={data['email']}
+                                    />
+                                ) : (
+                                    <TextField label={'Email'} fullWidth/>
+                                )}
                             </Grid>
                             <Grid item>
-                                <TextField label={'Address Line 2'} fullWidth/>
+                                {'address' in data ? (
+                                    <TextField
+                                        label={'Address Line 1'}
+                                        fullWidth
+                                        defaultValue={data['address'][0]}
+                                    />
+                                ) : (
+                                    <TextField label={'Address Line 1'} fullWidth/>
+                                )}
                             </Grid>
                             <Grid item>
-                                <TextField label={'Mobile Phone'} fullWidth/>
+                                {'address' in data ? (
+                                    <TextField
+                                        label={'Address Line 2'}
+                                        fullWidth
+                                        defaultValue={data['address'][1]}
+                                    />
+                                ) : (
+                                    <TextField label={'Address Line 2'} fullWidth/>
+                                )}
                             </Grid>
                             <Grid item>
-                                <TextField label={'Landline Phone'} fullWidth/>
+                                {'phones' in data && 'MOBILE' in data['phones'] ? (
+                                    <TextField
+                                        sx={{ width: '50%' }}
+                                        label={'Mobile Phone'}
+                                        defaultValue={data['phones']['MOBILE']}
+                                    />
+                                ) : (
+                                    <TextField
+                                        sx={{ width: '50%' }}
+                                        label={'Mobile Phone'}
+                                    />
+                                )}
+                                {'phones' in data && 'LANDLINE' in data['phones'] ? (
+                                    <TextField
+                                        sx={{ width: '50%' }}
+                                        label={'Landline Phone'}
+                                        defaultValue={data['phones']['LANDLINE']}
+                                    />
+                                ) : (
+                                    <TextField
+                                        sx={{ width: '50%' }}
+                                        label={'Landline Phone'}
+                                    />
+                                )}
                             </Grid>
                         </Grid>
                     </Box>
