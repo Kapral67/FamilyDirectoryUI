@@ -137,150 +137,170 @@ function displayEditCard (data) {
         <LocalizationProvider dateAdapter={AdapterDayjs}>
             <Card sx={{ width: '100%', margin: 'auto', display: 'block' }}>
                 <CardContent>
-                    <Box component={'form'}>
+                    <form>
                         <Grid container
                               spacing={2}
                               direction={'column'}
                               justifyContent={'space-evenly'}
-                              alignItems={'stretch'}
                         >
                             <Grid item>
-                                <TextField
-                                    label={'First Name'}
-                                    required
-                                    fullWidth
-                                    defaultValue={data['firstName']}
-                                />
+                                <Grid container
+                                      spacing={2}
+                                      direction={'row'}
+                                      justifyContent={'space-evenly'}
+                                >
+                                    <Grid item>
+                                        <FormControl fullWidth>
+                                            <TextField
+                                                label={'First Name'}
+                                                required
+                                                fullWidth
+                                                defaultValue={data['firstName']}
+                                            />
+                                        </FormControl>
+                                    </Grid>
+                                    <Grid item>
+                                        <FormControl fullWidth>
+                                            <TextField
+                                                label={'Middle Name'}
+                                                fullWidth
+                                                defaultValue={'middleName' in data ? data['middleName'] : ''}
+                                            />
+                                        </FormControl>
+                                    </Grid>
+                                    <Grid item>
+                                        <FormControl fullWidth>
+                                            <TextField
+                                                label={'Last Name'}
+                                                required
+                                                fullWidth
+                                                defaultValue={data['lastName']}
+                                            />
+                                        </FormControl>
+                                    </Grid>
+                                    <Grid item>
+                                        <FormControl sx={{ minWidth: 90 }}>
+                                            <TextField
+                                                label={'Suffix'}
+                                                select
+                                                fullWidth
+                                                defaultValue={'suffix' in data ? data['suffix'] : ''}
+                                            >
+                                                <MenuItem value={''}><i>None</i></MenuItem>
+                                                <MenuItem value={'Jr'}>Jr</MenuItem>
+                                                <MenuItem value={'Sr'}>Sr</MenuItem>
+                                            </TextField>
+                                        </FormControl>
+                                    </Grid>
+                                </Grid>
                             </Grid>
                             <Grid item>
-                                { 'middleName' in data ? (
-                                    <TextField
-                                        label={'Middle Name'}
-                                        fullWidth
-                                        defaultValue={data['middleName']}
-                                    />
-                                ) : (
-                                    <TextField
-                                        label={'Middle Name'}
-                                        fullWidth
-                                    />
-                                ) }
+                                <Grid
+                                    container
+                                    spacing={2}
+                                    direction={'row'}
+                                    justifyContent={'space-evenly'}
+                                >
+                                    <Grid item>
+                                        <FormControl fullWidth>
+                                            <DatePicker
+                                                label={'Birthday'}
+                                                disableFuture
+                                                defaultValue={dayjs(data['birthday'])}
+                                            />
+                                        </FormControl>
+                                    </Grid>
+                                    <Grid item>
+                                        <FormControl fullWidth>
+                                            <DatePicker
+                                                label={'Deathday'}
+                                                disableFuture
+                                                defaultValue={'deathday' in data ? dayjs(data['deathday']) : null}
+                                            />
+                                        </FormControl>
+                                    </Grid>
+                                </Grid>
                             </Grid>
                             <Grid item>
-                                <TextField
-                                    label={'Last Name'}
-                                    required
-                                    fullWidth
-                                    defaultValue={data['lastName']}
-                                />
+                                <Grid
+                                    container
+                                    spacing={2}
+                                    direction={'row'}
+                                    justifyContent={'space-evenly'}
+                                >
+                                    <Grid item>
+                                        <FormControl fullWidth>
+                                            <TextField
+                                                label={'Email'}
+                                                fullWidth
+                                                defaultValue={'email' in data ? data['email'] : ''}
+                                            />
+                                        </FormControl>
+                                    </Grid>
+                                </Grid>
                             </Grid>
                             <Grid item>
-                                {'suffix' in data ? (
-                                    <TextField
-                                        label={'Suffix'}
-                                        select
-                                        fullWidth
-                                        defaultValue={data['suffix']}
-                                    >
-                                        <MenuItem value={''}><i>None</i></MenuItem>
-                                        <MenuItem value={'Jr'}>Jr</MenuItem>
-                                        <MenuItem value={'Sr'}>Sr</MenuItem>
-                                    </TextField>
-                                ) : (
-                                    <TextField
-                                        label={'Suffix'}
-                                        select
-                                        fullWidth
-                                    >
-                                        <MenuItem value={''}><i>None</i></MenuItem>
-                                        <MenuItem value={'Jr'}>Jr</MenuItem>
-                                        <MenuItem value={'Sr'}>Sr</MenuItem>
-                                    </TextField>
-                                )}
+                                <Grid
+                                    container
+                                    spacing={2}
+                                    direction={'row'}
+                                    justifyContent={'space-evenly'}
+                                >
+                                    <Grid item>
+                                        <FormControl fullWidth>
+                                            <TextField
+                                                label={'Address Line 1'}
+                                                fullWidth
+                                                defaultValue={'address' in data ? data['address'][0] : ''}
+                                            />
+                                        </FormControl>
+                                    </Grid>
+                                    <Grid item>
+                                        <FormControl fullWidth>
+                                            <TextField
+                                                label={'Address Line 2'}
+                                                fullWidth
+                                                defaultValue={'address' in data ? data['address'][1] : ''}
+                                            />
+                                        </FormControl>
+                                    </Grid>
+                                </Grid>
                             </Grid>
                             <Grid item>
-                                <DatePicker
-                                    sx={{ width: '50%' }}
-                                    label={'Birthday'}
-                                    disableFuture
-                                    defaultValue={dayjs(data['birthday'])}
-                                />
-                                {'deathday' in data ? (
-                                    <DatePicker
-                                        sx={{ width: '50%' }}
-                                        label={'Deathday'}
-                                        disableFuture
-                                        defaultValue={dayjs(data['deathday'])}
-                                    />
-                                ) : (
-                                    <DatePicker
-                                        sx={{ width: '50%' }}
-                                        label={'Deathday'}
-                                        disableFuture
-                                    />
-                                )}
-                            </Grid>
-                            <Grid item>
-                                {'email' in data ? (
-                                    <TextField
-                                        label={'Email'}
-                                        fullWidth
-                                        defaultValue={data['email']}
-                                    />
-                                ) : (
-                                    <TextField label={'Email'} fullWidth/>
-                                )}
-                            </Grid>
-                            <Grid item>
-                                {'address' in data ? (
-                                    <TextField
-                                        label={'Address Line 1'}
-                                        fullWidth
-                                        defaultValue={data['address'][0]}
-                                    />
-                                ) : (
-                                    <TextField label={'Address Line 1'} fullWidth/>
-                                )}
-                            </Grid>
-                            <Grid item>
-                                {'address' in data ? (
-                                    <TextField
-                                        label={'Address Line 2'}
-                                        fullWidth
-                                        defaultValue={data['address'][1]}
-                                    />
-                                ) : (
-                                    <TextField label={'Address Line 2'} fullWidth/>
-                                )}
-                            </Grid>
-                            <Grid item>
-                                {'phones' in data && 'MOBILE' in data['phones'] ? (
-                                    <TextField
-                                        sx={{ width: '50%' }}
-                                        label={'Mobile Phone'}
-                                        defaultValue={data['phones']['MOBILE']}
-                                    />
-                                ) : (
-                                    <TextField
-                                        sx={{ width: '50%' }}
-                                        label={'Mobile Phone'}
-                                    />
-                                )}
-                                {'phones' in data && 'LANDLINE' in data['phones'] ? (
-                                    <TextField
-                                        sx={{ width: '50%' }}
-                                        label={'Landline Phone'}
-                                        defaultValue={data['phones']['LANDLINE']}
-                                    />
-                                ) : (
-                                    <TextField
-                                        sx={{ width: '50%' }}
-                                        label={'Landline Phone'}
-                                    />
-                                )}
+                                <Grid
+                                    container
+                                    spacing={2}
+                                    direction={'row'}
+                                    justifyContent={'space-evenly'}
+                                >
+                                    <Grid item>
+                                        <FormControl fullWidth>
+                                            <TextField
+                                                label={'Mobile Phone'}
+                                                defaultValue={
+                                                    'phones' in data && 'MOBILE' in data['phones']
+                                                        ? data['phones']['MOBILE']
+                                                        : ''
+                                                }
+                                            />
+                                        </FormControl>
+                                    </Grid>
+                                    <Grid item>
+                                        <FormControl fullWidth>
+                                            <TextField
+                                                label={'Landline Phone'}
+                                                defaultValue={
+                                                    'phones' in data && 'LANDLINE' in data['phones']
+                                                        ? data['phones']['LANDLINE']
+                                                        : ''
+                                                }
+                                            />
+                                        </FormControl>
+                                    </Grid>
+                                </Grid>
                             </Grid>
                         </Grid>
-                    </Box>
+                    </form>
                     <Grid container justifyContent={'space-between'}>
                         <Grid item xs={12} style={{ alignSelf: 'stretch' }}><br/></Grid>
                         <Grid item>
