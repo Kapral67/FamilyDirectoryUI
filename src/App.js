@@ -4,6 +4,8 @@ import {Auth} from "aws-amplify";
 import {useEffect, useState} from "react";
 import Box from "@mui/material/Box";
 import {CircularProgress} from "@mui/material";
+import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
+import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider";
 
 export default function App() {
 
@@ -33,9 +35,9 @@ export default function App() {
     }
 
     return (
-        <>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
             <TitleBar />
             <Content />
-        </>
+        </LocalizationProvider>
     );
 }
