@@ -131,6 +131,33 @@ function displayAddress (data) {
 }
 
 function displayEditCard (data) {
+    const NAME_VALIDATOR_REGEX = /^[^A-Za-z\-'_]+$/
+    let error = {
+        firstName: false,
+        middleName: false,
+        lastName: false,
+        suffix: false,
+        birthday: false,
+        deathday: false,
+        email: false,
+        address: [false, false],
+        phones: {
+            LANDLINE: false,
+            MOBILE: false
+        }
+    }
+    const hasError = (obj) => {
+        for (let key in obj) {
+            if (typeof obj[key] === 'object' && obj[key] !== null) {
+                if (hasError(obj[key])) {
+                    return true;
+                }
+            } else if (obj[key] === true) {
+                return true;
+            }
+        }
+        return false;
+    };
     editedData = JSON.parse(JSON.stringify(data));
     return (
         <Card sx={{ width: '100%', margin: 'auto', display: 'block' }}>
@@ -154,7 +181,9 @@ function displayEditCard (data) {
                                             required
                                             fullWidth
                                             defaultValue={data['firstName']}
-                                            onChange={(event) => editedData['firstName'] = event.target.value}
+                                            onChange={(event) => {
+                                                editedData['firstName'] = event.target.value.trim()
+                                            }}
                                         />
                                     </FormControl>
                                 </Grid>
