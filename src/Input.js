@@ -162,6 +162,7 @@ export default function Input({data= null, setInputState}) {
                                 <Grid item>
                                     <FormControl fullWidth>
                                         <DatePicker
+                                            minDate={dayjs('1000-01-01')}
                                             label={'Birthday'}
                                             disableFuture
                                             defaultValue={dayjs(data['birthday'])}
@@ -172,6 +173,7 @@ export default function Input({data= null, setInputState}) {
                                 <Grid item>
                                     <FormControl fullWidth>
                                         <DatePicker
+                                            minDate={dayjs('1000-01-01')}
                                             label={'Deathday'}
                                             disableFuture
                                             defaultValue={'deathday' in data ? dayjs(data['deathday']) : null}
