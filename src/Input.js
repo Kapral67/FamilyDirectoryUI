@@ -1,29 +1,53 @@
 import {Card, CardContent, FormControl, Grid, IconButton, MenuItem, TextField} from "@mui/material";
 import {DatePicker} from "@mui/x-date-pickers/DatePicker";
+import {matchIsValidTel, MuiTelInput} from 'mui-tel-input';
 import dayjs from "dayjs";
 import EditOffIcon from "@mui/icons-material/EditOff";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
 import {useState} from "react";
+import isEmail from 'validator/lib/isEmail';
 
 const NAME_VALIDATOR_REGEX = /^[A-Za-z\-'_]+$/;
 const NAME_VALIDATOR_REGEX_OPT = /^[A-Za-z\-'_]*$/;
 const SPECIAL_CHAR_VALIDATOR_REGEX = /^['_-]+[A-Za-z\-'_]*$/;
+const EMPTY_PHONE_NUMBER_VALIDATOR_REGEX = /^\+[0-9]+$/;
+const MIN_DATE = dayjs('1000-01-01');
 
-export default function Input({data= null, setInputState}) {
+function getMaxDate() {
+    const now = new Date();
+    return dayjs(`${now.getUTCFullYear()+1}-${now.getUTCMonth()+1}-${now.getUTCDate()}`);
+}
+
+function getFormattedDate(date) {
+    return `${date.year()}-${date.month()+1}-${date.date()}`;
+}
+
+export default function Input({setInputState, data = null}) {
     let editedData = data === null
         ? {
-            firstName: '',
-            lastName: '',
+            firstName: null,
+            middleName: null,
+            lastName: null,
+            suffix: null,
             birthday: null,
-            email: false,
+            deathday: null,
+            email: null,
+            address: [null, null],
+            phones: {
+                LANDLINE: null,
+                MOBILE: null
+            }
           }
         : JSON.parse(JSON.stringify(data));
+    const [birthday, setBirthday] = useState(editedData['birthday'] === null ? MIN_DATE : dayjs(editedData['birthday']));
+    const [mobile, setMobile] = useState('phones' in editedData && 'MOBILE' in editedData['phones'] ? editedData['phones']['MOBILE'] : null);
+    const [landline, setLandline] = useState('phones' in editedData && 'LANDLINE' in editedData['phones'] ? editedData['phones']['LANDLINE'] : null);
     const [error, setError] = useState({
-        firstName: false,
+        firstName: editedData['firstName'] === null,
         middleName: false,
-        lastName: false,
+        lastName: editedData['lastName'] === null,
         suffix: false,
-        birthday: false,
+        birthday: editedData['birthday'] === null,
         deathday: false,
         email: false,
         address: [false, false],
@@ -79,7 +103,6 @@ export default function Input({data= null, setInputState}) {
                                                         firstName: false
                                                     });
                                                 }
-                                                console.log(error['firstName'])
                                             }}
                                             error={error['firstName']}
                                         />
@@ -92,8 +115,9 @@ export default function Input({data= null, setInputState}) {
                                             fullWidth
                                             defaultValue={'middleName' in data ? data['middleName'] : ''}
                                             onChange={(event) => {
-                                                editedData['middleName'] = event.target.value.trim();
-                                                if (!NAME_VALIDATOR_REGEX_OPT.test(editedData['middleName']) || SPECIAL_CHAR_VALIDATOR_REGEX.test(editedData['middleName'])) {
+                                                const middleName = event.target.value.trim();
+                                                editedData['middleName'] = middleName === '' ? null : middleName;
+                                                if (editedData['middleName'] !== null && (!NAME_VALIDATOR_REGEX_OPT.test(editedData['middleName']) || SPECIAL_CHAR_VALIDATOR_REGEX.test(editedData['middleName']))) {
                                                     setError({
                                                         ...error,
                                                         middleName: true
@@ -129,7 +153,6 @@ export default function Input({data= null, setInputState}) {
                                                         lastName: false
                                                     });
                                                 }
-                                                console.log(error['lastName'])
                                             }}
                                             error={error['lastName']}
                                         />
@@ -142,7 +165,10 @@ export default function Input({data= null, setInputState}) {
                                             select
                                             fullWidth
                                             defaultValue={'suffix' in data ? data['suffix'] : ''}
-                                            onChange={(event) => editedData['suffix'] = event.target.value}
+                                            onChange={(event) => {
+                                                const suffix = event.target.value.trim();
+                                                editedData['suffix'] = suffix === '' ? null : suffix;
+                                            }}
                                         >
                                             <MenuItem value={''}><i>None</i></MenuItem>
                                             <MenuItem value={'Jr'}>Jr</MenuItem>
@@ -162,21 +188,56 @@ export default function Input({data= null, setInputState}) {
                                 <Grid item>
                                     <FormControl fullWidth>
                                         <DatePicker
-                                            minDate={dayjs('1000-01-01')}
+                                            minDate={MIN_DATE}
+                                            maxDate={getMaxDate()}
                                             label={'Birthday'}
                                             disableFuture
                                             defaultValue={dayjs(data['birthday'])}
-                                            slotProps={{ textField: { required: true } }}
+                                            slotProps={{ textField: { error: error['birthday'], required: true } }}
+                                            onChange={(date, context) => {
+                                                if (context.validationError !== null || date === null) {
+                                                    setError({
+                                                        ...error,
+                                                        birthday: true
+                                                    });
+                                                    editedData['birthday'] = null;
+                                                    setBirthday(MIN_DATE);
+                                                } else {
+                                                    setError({
+                                                        ...error,
+                                                        birthday: false
+                                                    });
+                                                    editedData['birthday'] = getFormattedDate(date);
+                                                    setBirthday(dayjs(editedData['birthday']));
+                                                }
+                                            }}
                                         />
                                     </FormControl>
                                 </Grid>
                                 <Grid item>
                                     <FormControl fullWidth>
                                         <DatePicker
-                                            minDate={dayjs('1000-01-01')}
+                                            minDate={birthday}
+                                            maxDate={getMaxDate()}
                                             label={'Deathday'}
                                             disableFuture
                                             defaultValue={'deathday' in data ? dayjs(data['deathday']) : null}
+                                            slotProps={{ textField: { error: error['deathday'] } }}
+                                            onChange={(date, context) => {
+                                                if (context.validationError === null) {
+                                                    setError({
+                                                        ...error,
+                                                        deathday: false
+                                                    });
+                                                    editedData['deathday'] = (date === null) ? null : getFormattedDate(date);
+                                                } else {
+                                                    setError({
+                                                        ...error,
+                                                        deathday: true
+                                                    });
+                                                    editedData['deathday'] = null;
+                                                }
+                                            }}
                                         />
                                     </FormControl>
                                 </Grid>
@@ -195,6 +256,22 @@ export default function Input({data= null, setInputState}) {
                                             label={'Email'}
                                             fullWidth
                                             defaultValue={'email' in data ? data['email'] : ''}
+                                            onChange={(event) => {
+                                                const email = event.target.value.trim();
+                                                editedData['email'] = email === '' ? null : email;
+                                                if (editedData['email'] === null || isEmail(editedData['email'])) {
+                                                    setError({
+                                                        ...error,
+                                                        email: false
+                                                    });
+                                                } else {
+                                                    setError({
+                                                        ...error,
+                                                        email: true
+                                                    });
+                                                }
+                                            }}
+                                            error={error['email']}
                                         />
                                     </FormControl>
                                 </Grid>
@@ -236,25 +313,71 @@ export default function Input({data= null, setInputState}) {
                             >
                                 <Grid item>
                                     <FormControl fullWidth>
-                                        <TextField
+                                        <MuiTelInput
                                             label={'Mobile Phone'}
-                                            defaultValue={
-                                                'phones' in data && 'MOBILE' in data['phones']
-                                                    ? data['phones']['MOBILE']
-                                                    : ''
-                                            }
+                                            defaultCountry={'US'}
+                                            preferredCountries={['US']}
+                                            forceCallingCode
+                                            focusOnSelectCountry
+                                            value={mobile}
+                                            onChange={(newMobile) => {
+                                                setMobile(newMobile);
+                                                if (!EMPTY_PHONE_NUMBER_VALIDATOR_REGEX.test(newMobile) && !matchIsValidTel(newMobile)) {
+                                                    setError({
+                                                        ...error,
+                                                        phones: {
+                                                            ...error.phones,
+                                                            MOBILE: true
+                                                        }
+                                                    });
+                                                    editedData['phones']['MOBILE'] = null;
+                                                } else {
+                                                    setError({
+                                                        ...error,
+                                                        phones: {
+                                                            ...error.phones,
+                                                            MOBILE: false
+                                                        }
+                                                    });
+                                                    editedData['phones']['MOBILE'] = EMPTY_PHONE_NUMBER_VALIDATOR_REGEX.test(newMobile) ? null : newMobile;
+                                                }
+                                            }}
+                                            error={error['phones']['MOBILE']}
                                         />
                                     </FormControl>
                                 </Grid>
                                 <Grid item>
                                     <FormControl fullWidth>
-                                        <TextField
+                                        <MuiTelInput
                                             label={'Landline Phone'}
-                                            defaultValue={
-                                                'phones' in data && 'LANDLINE' in data['phones']
-                                                    ? data['phones']['LANDLINE']
-                                                    : ''
-                                            }
+                                            defaultCountry={'US'}
+                                            preferredCountries={['US']}
+                                            forceCallingCode
+                                            focusOnSelectCountry
+                                            value={landline}
+                                            onChange={(newLandline) => {
+                                                setLandline(newLandline);
+                                                if (!EMPTY_PHONE_NUMBER_VALIDATOR_REGEX.test(newLandline) && !matchIsValidTel(newLandline)) {
+                                                    setError({
+                                                        ...error,
+                                                        phones: {
+                                                            ...error.phones,
+                                                            LANDLINE: true
+                                                        }
+                                                    });
+                                                    editedData['phones']['LANDLINE'] = null;
+                                                } else {
+                                                    setError({
+                                                        ...error,
+                                                        phones: {
+                                                            ...error.phones,
+                                                            LANDLINE: false
+                                                        }
+                                                    });
+                                                    editedData['phones']['LANDLINE'] = EMPTY_PHONE_NUMBER_VALIDATOR_REGEX.test(newLandline) ? null : newLandline;
+                                                }
+                                            }}
+                                            error={error['phones']['LANDLINE']}
                                         />
                                     </FormControl>
                                 </Grid>
