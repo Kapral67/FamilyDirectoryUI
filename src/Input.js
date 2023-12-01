@@ -11,7 +11,9 @@ const NAME_VALIDATOR_REGEX = /^[A-Za-z\-'_]+$/;
 const NAME_VALIDATOR_REGEX_OPT = /^[A-Za-z\-'_]*$/;
 const SPECIAL_CHAR_VALIDATOR_REGEX = /^['_-]+[A-Za-z\-'_]*$/;
 const EMPTY_PHONE_NUMBER_VALIDATOR_REGEX = /^\+[0-9]+$/;
+const WHITESPACE_MATCHER_REGEX = /\s/g;
 const MIN_DATE = dayjs('1000-01-01');
+const DAGGER = '†';
 
 function getMaxDate() {
     const now = new Date();
@@ -22,32 +24,78 @@ function getFormattedDate(date) {
     return `${date.year()}-${date.month()+1}-${date.date()}`;
 }
 
-export default function Input({setInputState, data = null}) {
-    let editedData = data === null
-        ? {
-            firstName: null,
-            middleName: null,
-            lastName: null,
-            suffix: null,
-            birthday: null,
-            deathday: null,
-            email: null,
-            address: [null, null],
-            phones: {
-                LANDLINE: null,
-                MOBILE: null
+function getInitialState(data) {
+    let initialState = {
+        firstName: '',
+        middleName: '',
+        lastName: '',
+        suffix: '',
+        birthday: '',
+        deathday: '',
+        email: '',
+        address: ['', ''],
+        phones: {
+            LANDLINE: '',
+            MOBILE: ''
+        }
+    };
+    if (data !== null) {
+        const d = JSON.parse(JSON.stringify(data));
+        if ('firstName' in d) {
+            initialState['firstName'] = d['firstName'];
+        }
+        if ('middleName' in d) {
+            initialState['middleName'] = d['middleName'];
+        }
+        if ('lastName' in d) {
+            initialState['lastName'] = d['lastName'];
+        }
+        if ('suffix' in d) {
+            initialState['suffix'] = d['suffix'];
+        }
+        if ('birthday' in d) {
+            initialState['birthday'] = d['birthday'];
+        }
+        if ('deathday' in d) {
+            initialState['deathday'] = d['deathday'];
+        }
+        if ('email' in d) {
+            initialState['email'] = d['email'];
+        }
+        if ('address' in d && Array.isArray(d['address']) && d['address'].length > 1) {
+            initialState['address'][0] = d['address'][0];
+            initialState['address'][1] = d['address'][1];
+        }
+        if ('phones' in d) {
+            if ('MOBILE' in d['phones']) {
+                initialState['phones']['MOBILE'] = d['phones']['MOBILE'];
             }
-          }
-        : JSON.parse(JSON.stringify(data));
-    const [birthday, setBirthday] = useState(editedData['birthday'] === null ? MIN_DATE : dayjs(editedData['birthday']));
-    const [mobile, setMobile] = useState('phones' in editedData && 'MOBILE' in editedData['phones'] ? editedData['phones']['MOBILE'] : null);
-    const [landline, setLandline] = useState('phones' in editedData && 'LANDLINE' in editedData['phones'] ? editedData['phones']['LANDLINE'] : null);
+            if ('LANDLINE' in d['phones']) {
+                initialState['phones']['LANDLINE'] = d['phones']['LANDLINE'];
+            }
+        }
+    }
+    return initialState;
+}
+
+export default function Input({setInputState, data = null, isSpouse = null}) {
+    const initialState = getInitialState(data);
+    const [firstName, setFirstName] = useState(initialState['firstName']);
+    const [middleName, setMiddleName] = useState(initialState['middleName']);
+    const [lastName, setLastName] = useState(initialState['lastName']);
+    const [suffix, setSuffix] = useState(initialState['suffix']);
+    const [birthday, setBirthday] = useState(initialState['birthday']);
+    const [deathday, setDeathday] = useState(initialState['deathday']);
+    const [email, setEmail] = useState(initialState['email']);
+    const [address, setAddress] = useState(initialState['address']);
+    const [phones, setPhones] = useState(initialState['phones']);
+
     const [error, setError] = useState({
-        firstName: editedData['firstName'] === null,
+        firstName: initialState['firstName'] === '',
         middleName: false,
-        lastName: editedData['lastName'] === null,
+        lastName: initialState['lastName'] === '',
         suffix: false,
-        birthday: editedData['birthday'] === null,
+        birthday: initialState['birthday'] === '',
         deathday: false,
         email: false,
         address: [false, false],
@@ -68,6 +116,15 @@ export default function Input({setInputState, data = null}) {
         }
         return false;
     };
+    const isInitialState = () => JSON.stringify(firstName) === JSON.stringify(initialState['firstName']) &&
+                                JSON.stringify(middleName) === JSON.stringify(initialState['middleName']) &&
+                                JSON.stringify(lastName) === JSON.stringify(initialState['lastName']) &&
+                                JSON.stringify(suffix) === JSON.stringify(initialState['suffix']) &&
+                                JSON.stringify(birthday) === JSON.stringify(initialState['birthday']) &&
+                                JSON.stringify(deathday) === JSON.stringify(initialState['deathday']) &&
+                                JSON.stringify(email) === JSON.stringify(initialState['email']) &&
+                                JSON.stringify(address) === JSON.stringify(initialState['address']) &&
+                                JSON.stringify(phones) === JSON.stringify(initialState['phones']);
     return (
         <Card sx={{ width: '100%', margin: 'auto', display: 'block' }}>
             <CardContent>
@@ -89,20 +146,14 @@ export default function Input({setInputState, data = null}) {
                                             label={'First Name'}
                                             required
                                             fullWidth
-                                            defaultValue={data['firstName']}
+                                            defaultValue={firstName}
                                             onChange={(event) => {
-                                                editedData['firstName'] = event.target.value.trim();
-                                                if (!NAME_VALIDATOR_REGEX.test(editedData['firstName']) || SPECIAL_CHAR_VALIDATOR_REGEX.test(editedData['firstName'])) {
-                                                    setError({
-                                                        ...error,
-                                                        firstName: true
-                                                    });
-                                                } else {
-                                                    setError({
-                                                        ...error,
-                                                        firstName: false
-                                                    });
-                                                }
+                                                const first_name = event.target.value.trim();
+                                                setFirstName(first_name);
+                                                setError({
+                                                    ...error,
+                                                    firstName: !NAME_VALIDATOR_REGEX.test(first_name) || SPECIAL_CHAR_VALIDATOR_REGEX.test(first_name)
+                                                });
                                             }}
                                             error={error['firstName']}
                                         />
@@ -113,21 +164,14 @@ export default function Input({setInputState, data = null}) {
                                         <TextField
                                             label={'Middle Name'}
                                             fullWidth
-                                            defaultValue={'middleName' in data ? data['middleName'] : ''}
+                                            defaultValue={middleName}
                                             onChange={(event) => {
-                                                const middleName = event.target.value.trim();
-                                                editedData['middleName'] = middleName === '' ? null : middleName;
-                                                if (editedData['middleName'] !== null && (!NAME_VALIDATOR_REGEX_OPT.test(editedData['middleName']) || SPECIAL_CHAR_VALIDATOR_REGEX.test(editedData['middleName']))) {
-                                                    setError({
-                                                        ...error,
-                                                        middleName: true
-                                                    });
-                                                } else {
-                                                    setError({
-                                                        ...error,
-                                                        middleName: false
-                                                    });
-                                                }
+                                                const middle_name = event.target.value.trim();
+                                                setMiddleName(middle_name);
+                                                setError({
+                                                    ...error,
+                                                    middleName: !NAME_VALIDATOR_REGEX_OPT.test(middle_name) || SPECIAL_CHAR_VALIDATOR_REGEX.test(middle_name)
+                                                });
                                             }}
                                             error={error['middleName']}
                                         />
@@ -139,20 +183,14 @@ export default function Input({setInputState, data = null}) {
                                             label={'Last Name'}
                                             required
                                             fullWidth
-                                            defaultValue={data['lastName']}
+                                            defaultValue={lastName}
                                             onChange={(event) => {
-                                                editedData['lastName'] = event.target.value.trim();
-                                                if (!NAME_VALIDATOR_REGEX.test(editedData['lastName']) || SPECIAL_CHAR_VALIDATOR_REGEX.test(editedData['lastName'])) {
-                                                    setError({
-                                                        ...error,
-                                                        lastName: true
-                                                    });
-                                                } else {
-                                                    setError({
-                                                        ...error,
-                                                        lastName: false
-                                                    });
-                                                }
+                                                const last_name = event.target.value.trim();
+                                                setLastName(last_name);
+                                                setError({
+                                                    ...error,
+                                                    lastName: !NAME_VALIDATOR_REGEX.test(last_name) || SPECIAL_CHAR_VALIDATOR_REGEX.test(last_name)
+                                                });
                                             }}
                                             error={error['lastName']}
                                         />
@@ -164,11 +202,8 @@ export default function Input({setInputState, data = null}) {
                                             label={'Suffix'}
                                             select
                                             fullWidth
-                                            defaultValue={'suffix' in data ? data['suffix'] : ''}
-                                            onChange={(event) => {
-                                                const suffix = event.target.value.trim();
-                                                editedData['suffix'] = suffix === '' ? null : suffix;
-                                            }}
+                                            defaultValue={suffix}
+                                            onChange={(event) => setSuffix(event.target.value.replaceAll(WHITESPACE_MATCHER_REGEX, ''))}
                                         >
                                             <MenuItem value={''}><i>None</i></MenuItem>
                                             <MenuItem value={'Jr'}>Jr</MenuItem>
@@ -192,24 +227,15 @@ export default function Input({setInputState, data = null}) {
                                             maxDate={getMaxDate()}
                                             label={'Birthday'}
                                             disableFuture
-                                            defaultValue={dayjs(data['birthday'])}
+                                            defaultValue={birthday === '' ? null : dayjs(birthday)}
                                             slotProps={{ textField: { error: error['birthday'], required: true } }}
                                             onChange={(date, context) => {
-                                                if (context.validationError !== null || date === null) {
-                                                    setError({
-                                                        ...error,
-                                                        birthday: true
-                                                    });
-                                                    editedData['birthday'] = null;
-                                                    setBirthday(MIN_DATE);
-                                                } else {
-                                                    setError({
-                                                        ...error,
-                                                        birthday: false
-                                                    });
-                                                    editedData['birthday'] = getFormattedDate(date);
-                                                    setBirthday(dayjs(editedData['birthday']));
-                                                }
+                                                const birthdayHasError = context.validationError !== null || date === null;
+                                                setError({
+                                                    ...error,
+                                                    birthday: birthdayHasError
+                                                });
+                                                setBirthday(birthdayHasError ? '' : getFormattedDate(date));
                                             }}
                                         />
                                     </FormControl>
@@ -217,26 +243,19 @@ export default function Input({setInputState, data = null}) {
                                 <Grid item>
                                     <FormControl fullWidth>
                                         <DatePicker
-                                            minDate={birthday}
+                                            minDate={birthday === '' ? MIN_DATE : dayjs(birthday)}
                                             maxDate={getMaxDate()}
                                             label={'Deathday'}
                                             disableFuture
-                                            defaultValue={'deathday' in data ? dayjs(data['deathday']) : null}
+                                            defaultValue={deathday === '' ? null : dayjs(deathday)}
                                             slotProps={{ textField: { error: error['deathday'] } }}
                                             onChange={(date, context) => {
-                                                if (context.validationError === null) {
-                                                    setError({
-                                                        ...error,
-                                                        deathday: false
-                                                    });
-                                                    editedData['deathday'] = (date === null) ? null : getFormattedDate(date);
-                                                } else {
-                                                    setError({
-                                                        ...error,
-                                                        deathday: true
-                                                    });
-                                                    editedData['deathday'] = null;
-                                                }
+                                                const deathdayHasError = context.validationError !== null;
+                                                setError({
+                                                    ...error,
+                                                    deathday: deathdayHasError
+                                                });
+                                                setDeathday(deathdayHasError || date === null ? '' : getFormattedDate(date));
                                             }}
                                         />
                                     </FormControl>
@@ -255,21 +274,14 @@ export default function Input({setInputState, data = null}) {
                                         <TextField
                                             label={'Email'}
                                             fullWidth
-                                            defaultValue={'email' in data ? data['email'] : ''}
+                                            defaultValue={email}
                                             onChange={(event) => {
-                                                const email = event.target.value.trim();
-                                                editedData['email'] = email === '' ? null : email;
-                                                if (editedData['email'] === null || isEmail(editedData['email'])) {
-                                                    setError({
-                                                        ...error,
-                                                        email: false
-                                                    });
-                                                } else {
-                                                    setError({
-                                                        ...error,
-                                                        email: true
-                                                    });
-                                                }
+                                                const e_mail = event.target.value.replaceAll(WHITESPACE_MATCHER_REGEX, '');
+                                                setEmail(e_mail);
+                                                setError({
+                                                    ...error,
+                                                    email: e_mail.includes(DAGGER) || (e_mail !== '' && !isEmail(e_mail))
+                                                });
                                             }}
                                             error={error['email']}
                                         />
@@ -289,7 +301,19 @@ export default function Input({setInputState, data = null}) {
                                         <TextField
                                             label={'Address Line 1'}
                                             fullWidth
-                                            defaultValue={'address' in data ? data['address'][0] : ''}
+                                            defaultValue={address[0]}
+                                            onChange={(event) => {
+                                                const addressLine1 = event.target.value.trim().replaceAll(WHITESPACE_MATCHER_REGEX, ' ');
+                                                setAddress([addressLine1, address[1]]);
+                                                setError({
+                                                    ...error,
+                                                    address: [
+                                                        addressLine1.includes(DAGGER),
+                                                        (address[1] === '' && addressLine1 !== '') || (addressLine1 === '' && address[1] !== '')
+                                                    ]
+                                                });
+                                            }}
+                                            error={error['address'][0]}
                                         />
                                     </FormControl>
                                 </Grid>
@@ -298,7 +322,21 @@ export default function Input({setInputState, data = null}) {
                                         <TextField
                                             label={'Address Line 2'}
                                             fullWidth
-                                            defaultValue={'address' in data ? data['address'][1] : ''}
+                                            defaultValue={address[1]}
+                                            onChange={(event) => {
+                                                const addressLine2 = event.target.value.trim().replaceAll(WHITESPACE_MATCHER_REGEX, ' ');
+                                                setAddress([address[0], addressLine2]);
+                                                setError({
+                                                    ...error,
+                                                    address: [
+                                                        error['address'][0],
+                                                        addressLine2.includes(DAGGER) || (addressLine2 !== '' && address[0] === '') || (addressLine2 === '' && address[0] !== '')
+                                                    ]
+                                                });
+                                            }}
+                                            required={address[0] !== ''}
+                                            disabled={address[0] === '' && address[1] === ''}
+                                            error={error['address'][1]}
                                         />
                                     </FormControl>
                                 </Grid>
@@ -319,28 +357,19 @@ export default function Input({setInputState, data = null}) {
                                             preferredCountries={['US']}
                                             forceCallingCode
                                             focusOnSelectCountry
-                                            value={mobile}
+                                            value={phones['MOBILE']}
                                             onChange={(newMobile) => {
-                                                setMobile(newMobile);
-                                                if (!EMPTY_PHONE_NUMBER_VALIDATOR_REGEX.test(newMobile) && !matchIsValidTel(newMobile)) {
-                                                    setError({
-                                                        ...error,
-                                                        phones: {
-                                                            ...error.phones,
-                                                            MOBILE: true
-                                                        }
-                                                    });
-                                                    editedData['phones']['MOBILE'] = null;
-                                                } else {
-                                                    setError({
-                                                        ...error,
-                                                        phones: {
-                                                            ...error.phones,
-                                                            MOBILE: false
-                                                        }
-                                                    });
-                                                    editedData['phones']['MOBILE'] = EMPTY_PHONE_NUMBER_VALIDATOR_REGEX.test(newMobile) ? null : newMobile;
-                                                }
+                                                setPhones({
+                                                    ...phones,
+                                                    MOBILE: newMobile
+                                                });
+                                                setError({
+                                                    ...error,
+                                                    phones: {
+                                                        ...error.phones,
+                                                        MOBILE: !EMPTY_PHONE_NUMBER_VALIDATOR_REGEX.test(newMobile) && !matchIsValidTel(newMobile)
+                                                    }
+                                                });
                                             }}
                                             error={error['phones']['MOBILE']}
                                         />
@@ -354,28 +383,19 @@ export default function Input({setInputState, data = null}) {
                                             preferredCountries={['US']}
                                             forceCallingCode
                                             focusOnSelectCountry
-                                            value={landline}
+                                            value={phones['LANDLINE']}
                                             onChange={(newLandline) => {
-                                                setLandline(newLandline);
-                                                if (!EMPTY_PHONE_NUMBER_VALIDATOR_REGEX.test(newLandline) && !matchIsValidTel(newLandline)) {
-                                                    setError({
-                                                        ...error,
-                                                        phones: {
-                                                            ...error.phones,
-                                                            LANDLINE: true
-                                                        }
-                                                    });
-                                                    editedData['phones']['LANDLINE'] = null;
-                                                } else {
-                                                    setError({
-                                                        ...error,
-                                                        phones: {
-                                                            ...error.phones,
-                                                            LANDLINE: false
-                                                        }
-                                                    });
-                                                    editedData['phones']['LANDLINE'] = EMPTY_PHONE_NUMBER_VALIDATOR_REGEX.test(newLandline) ? null : newLandline;
-                                                }
+                                                setPhones({
+                                                    ...phones,
+                                                    LANDLINE: newLandline
+                                                });
+                                                setError({
+                                                    ...error,
+                                                    phones: {
+                                                        ...error.phones,
+                                                        LANDLINE: !EMPTY_PHONE_NUMBER_VALIDATOR_REGEX.test(newLandline) && !matchIsValidTel(newLandline)
+                                                    }
+                                                });
                                             }}
                                             error={error['phones']['LANDLINE']}
                                         />
@@ -393,7 +413,30 @@ export default function Input({setInputState, data = null}) {
                         </IconButton>
                     </Grid>
                     <Grid item>
-                        <IconButton disabled={hasError(error)}>
+                        <IconButton
+                            disabled={isInitialState() || hasError(error)}
+                            onClick={() => {
+                                let telephones = JSON.parse(JSON.stringify(phones));
+                                if (EMPTY_PHONE_NUMBER_VALIDATOR_REGEX.test(telephones['MOBILE'])) {
+                                    telephones['MOBILE'] = '';
+                                }
+                                if (EMPTY_PHONE_NUMBER_VALIDATOR_REGEX.test(telephones['LANDLINE'])) {
+                                    telephones['LANDLINE'] = '';
+                                }
+                                const member = {
+                                    firstName: firstName,
+                                    middleName: middleName === '' ? null : middleName,
+                                    lastName: lastName,
+                                    suffix: suffix === '' ? null : suffix,
+                                    birthday: birthday,
+                                    deathday: deathday === '' ? null : deathday,
+                                    email: email === '' ? null : email,
+                                    address: address[0] === '' && address[1] === '' ? null : address,
+                                    phones: telephones['LANDLINE'] === '' && telephones['MOBILE'] === '' ? null : telephones
+                                };
+                                console.log((data === null && isSpouse !== null) ? { member: member, isSpouse: isSpouse } : { id: data['id'], member: member });
+                            }}
+                        >
                             <SaveAsIcon />
                         </IconButton>
                     </Grid>
