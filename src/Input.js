@@ -6,6 +6,7 @@ import EditOffIcon from "@mui/icons-material/EditOff";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
 import {useState} from "react";
 import isEmail from 'validator/lib/isEmail';
+import PersonAddDisabledIcon from '@mui/icons-material/PersonAddDisabled';
 
 const NAME_VALIDATOR_REGEX = /^[A-Za-z\-'_]+$/;
 const NAME_VALIDATOR_REGEX_OPT = /^[A-Za-z\-'_]*$/;
@@ -78,7 +79,8 @@ function getInitialState(data) {
     return initialState;
 }
 
-export default function Input({setInputState, data = null, isSpouse = null}) {
+export default function Input({setInputState, data = null, isSpouse = false}) {
+    const isCreate = data === null;
     const initialState = getInitialState(data);
     const [firstName, setFirstName] = useState(initialState['firstName']);
     const [middleName, setMiddleName] = useState(initialState['middleName']);
@@ -409,7 +411,11 @@ export default function Input({setInputState, data = null, isSpouse = null}) {
                     <Grid item xs={12} style={{ alignSelf: 'stretch' }}><br/></Grid>
                     <Grid item>
                         <IconButton onClick={() => setInputState(false)}>
-                            <EditOffIcon />
+                            {isCreate ? (
+                                <PersonAddDisabledIcon />
+                            ) : (
+                                <EditOffIcon />
+                            )}
                         </IconButton>
                     </Grid>
                     <Grid item>
@@ -434,7 +440,8 @@ export default function Input({setInputState, data = null, isSpouse = null}) {
                                     address: address[0] === '' && address[1] === '' ? null : address,
                                     phones: telephones['LANDLINE'] === '' && telephones['MOBILE'] === '' ? null : telephones
                                 };
-                                console.log((data === null && isSpouse !== null) ? { member: member, isSpouse: isSpouse } : { id: data['id'], member: member });
+                                // TODO:
+                                console.log(isCreate ? { member: member, isSpouse: isSpouse } : { id: data['id'], member: member });
                             }}
                         >
                             <SaveAsIcon />

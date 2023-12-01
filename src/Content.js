@@ -24,6 +24,8 @@ import {Auth, API} from "aws-amplify";
 import {Upcoming} from "@mui/icons-material";
 import dayjs from 'dayjs';
 import Input from "./Input";
+import GroupAddIcon from '@mui/icons-material/GroupAdd';
+import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
 
 let setId, caller, setCaller, setData, setIsEditing;
 
@@ -131,7 +133,7 @@ function displayAddress (data) {
     ) : (<></>);
 }
 
-function displayCard (data, isDescendant = false) {
+function displayCard (data, isDescendant = false, width = '75%') {
     let isEditable = false;
     if (!isDescendant) {
         isEditable = data['id'] === caller['member']['id'];
@@ -152,7 +154,7 @@ function displayCard (data, isDescendant = false) {
         }
     }
     return (
-        <Card sx={{ width: '75%', margin: 'auto', display: 'block' }}>
+        <Card sx={{ width: width, margin: 'auto', display: 'block' }}>
             <CardContent>
                 <CardHeader
                     title={['firstName', 'middleName', 'lastName', 'suffix'].map(key => data[key]).filter(Boolean).join(' ')}
@@ -247,14 +249,34 @@ export default function Content() {
                                     color={'inherit'}
                                     onClick={() => setId(data['ancestor'])}
                                 >
-                                    <ArrowUpwardIcon/>
+                                    <ArrowUpwardIcon />
                                 </IconButton>
                             </Grid>
                         )}
                         <Grid item>
                             <Grid container spacing={2}>
                                 <Grid item xs={12} sm={'spouse' in data ? 6 : 12}>
-                                    {displayCard(data['member'])}
+                                    {!('spouse' in data) && caller['member']['familyId'] === data['member']['familyId'] ? (
+                                        <Grid container
+                                              spacing={1}
+                                              direction={'row'}
+                                              justifyContent={'center'}
+                                              alignItems={'center'}
+                                        >
+                                            <Grid item xs={9}>
+                                                {displayCard(data['member'], false, 'fit-content')}
+                                            </Grid>
+                                            <Grid item xs={1}>
+                                                <IconButton
+                                                    size={'large'}
+                                                    color={'inherit'}
+                                                >
+                                                    <PersonAddAlt1Icon />
+                                                </IconButton>
+                                            </Grid>
+                                        </Grid>
+                                    ) : displayCard(data['member'])
+                                    }
                                 </Grid>
                                 { 'spouse' in data && (
                                     <Grid item xs={12} sm={6}>
@@ -269,7 +291,10 @@ export default function Content() {
                                     <br/><hr style={{ width: '50%' }}/><br/>
                                 </Grid>
                                 <Grid item>
-                                    <Grid container spacing={1} justifyContent={'center'}>
+                                    <Grid container
+                                          spacing={1}
+                                          justifyContent={'center'}
+                                    >
                                         {data['descendants'].map((descendant) => (
                                             <Grid item key={descendant['id']}>
                                                 {displayCard(descendant, true)}
@@ -278,6 +303,16 @@ export default function Content() {
                                     </Grid>
                                 </Grid>
                             </>
+                        )}
+                        {data['member']['familyId'] === caller['member']['familyId'] && (
+                            <Grid item>
+                                <IconButton
+                                    size={'large'}
+                                    color={'inherit'}
+                                >
+                                    <GroupAddIcon />
+                                </IconButton>
+                            </Grid>
                         )}
                     </>
                 )}
