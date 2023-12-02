@@ -1,8 +1,8 @@
 
 import Input from './Input';
-import {Auth, API} from 'aws-amplify';
-import {useConfirm} from 'material-ui-confirm';
-import {useEffect, useState} from 'react';
+import { get, post } from 'aws-amplify/api';
+import { useConfirm } from 'material-ui-confirm';
+import { useEffect, useState } from 'react';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -27,29 +27,32 @@ const DELETE_MEMBER_WARNING = 'Deleting a Member is permanent. Their data and ac
 let setId, caller, setCaller, setData, setIsLoading, setIsEditing, confirmDelete, setOpenSnackBarError, setOpenSnackBarSuccess;
 
 async function getMember (id = null) {
-    const init = {
-        headers: {
-            Authorization: `Bearer ${(await Auth.currentSession()).getAccessToken().getJwtToken()}`
-        },
+    const restOperation = get({
+        apiName: 'HttpApi',
+        path: '/get',
         ...id && {
-            queryStringParameters: {
-                id: `${id}`
+            options: {
+                queryParams: {
+                    id: `${id}`
+                }
             }
         }
-    };
-    return await API.get('HttpApi', '/get', init);
+    });
+    const {body} = await restOperation.response;
+    return await body.json();
 }
 
 async function deleteMember(id) {
-    const init = {
-        headers: {
-            Authorization: `Bearer ${(await Auth.currentSession()).getAccessToken().getJwtToken()}`
-        },
-        body: {
-            id: id
+    const restOperation = post({
+        apiName: 'HttpApi',
+        path: '/delete',
+        options: {
+            body: {
+                id: id
+            }
         }
-    }
-    return await API.del('HttpApi', '/delete', init);
+    });
+    await restOperation.response;
 }
 
 async function getData(id = null) {

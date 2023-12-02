@@ -1,23 +1,23 @@
 
 import TitleBar from './TitleBar';
 import Content from './Content';
-import {Auth} from 'aws-amplify';
-import {useEffect, useState} from 'react';
+import { getCurrentUser, signInWithRedirect } from 'aws-amplify/auth';
+import { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
-import {AdapterDayjs} from '@mui/x-date-pickers/AdapterDayjs';
-import {LocalizationProvider} from '@mui/x-date-pickers/LocalizationProvider';
-import {ConfirmProvider} from 'material-ui-confirm';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { ConfirmProvider } from 'material-ui-confirm';
 
 export default function App() {
 
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        Auth.currentAuthenticatedUser().then(() => {
+        getCurrentUser().then(() => {
             setIsLoading(false);
         }).catch(() => {
-            void Auth.federatedSignIn();
+            void signInWithRedirect();
         });
     }, []);
 

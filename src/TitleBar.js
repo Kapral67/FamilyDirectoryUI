@@ -1,4 +1,6 @@
-import {Auth, API} from 'aws-amplify';
+
+import { get } from 'aws-amplify/api';
+import { signOut } from 'aws-amplify/auth';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
@@ -6,7 +8,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import IconButton from '@mui/material/IconButton';
 import LogoutIcon from '@mui/icons-material/Logout';
 import DownloadIcon from '@mui/icons-material/Download';
-import {useState} from 'react';
+import { useState } from 'react';
 
 export default function TitleBar() {
 
@@ -14,21 +16,23 @@ export default function TitleBar() {
 
     const handleDownloadClick = async () => {
         setIsDownloading(true);
-        let blob = await API.get('HttpApi', '/pdf', {
-            headers: {
-                Authorization: `Bearer ${(await Auth.currentSession()).getAccessToken().getJwtToken()}`
-            },
-            responseType: 'blob'
-        });
-
-        let link = document.createElement('a');
-        link.href = window.URL.createObjectURL(blob);
-        link.download = `${process.env.REACT_APP_SURNAME}FamilyDirectory.pdf`;
-
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        setIsDownloading(false);
+        try {
+            const getPdf = get({
+                apiName: 'HttpApi',
+                path: '/pdf'
+            });
+            const {body} = await getPdf.response;
+            const blob = await body.blob();
+            let link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = `${process.env.REACT_APP_SURNAME}FamilyDirectory.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } catch (e) {
+        } finally {
+            setIsDownloading(false);
+        }
     };
 
     return (
@@ -55,7 +59,7 @@ export default function TitleBar() {
                     size={'large'}
                     aria-label={'Logout'}
                     color={'inherit'}
-                    onClick={() => Auth.signOut({ global: true })}
+                    onClick={() => signOut({ global: true })}
                 >
                     <LogoutIcon />
                 </IconButton>

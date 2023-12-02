@@ -1,8 +1,8 @@
 
-import {API, Auth} from 'aws-amplify';
-import {matchIsValidTel, MuiTelInput} from 'mui-tel-input';
+import { put, post } from 'aws-amplify/api';
+import { matchIsValidTel, MuiTelInput } from 'mui-tel-input';
 import dayjs from 'dayjs';
-import {useState} from 'react';
+import { useState } from 'react';
 import isEmail from 'validator/lib/isEmail';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -11,7 +11,7 @@ import Grid from '@mui/material/Grid';
 import IconButton from '@mui/material/IconButton';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
-import {DatePicker} from '@mui/x-date-pickers/DatePicker';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import EditOffIcon from '@mui/icons-material/EditOff';
 import SaveAsIcon from '@mui/icons-material/SaveAs';
 import PersonAddDisabledIcon from '@mui/icons-material/PersonAddDisabled';
@@ -25,23 +25,25 @@ const MIN_DATE = dayjs('1000-01-01');
 const DAGGER = '†';
 
 async function updateMember(request) {
-    const init = {
-        headers: {
-            Authorization: `Bearer ${(await Auth.currentSession()).getAccessToken().getJwtToken()}`
-        },
-        body: request
-    }
-    return await API.put('HttpApi', '/update', init);
+    const restOperation = put({
+        apiName: 'HttpApi',
+        path: '/update',
+        options: {
+            body: request
+        }
+    });
+    await restOperation.response;
 }
 
 async function createMember(request) {
-    const init = {
-        headers: {
-            Authorization: `Bearer ${(await Auth.currentSession()).getAccessToken().getJwtToken()}`
-        },
-        body: request
-    }
-    return await API.post('HttpApi', '/create', init);
+    const restOperation = post({
+        apiName: 'HttpApi',
+        path: '/create',
+        options: {
+            body: request
+        }
+    });
+    await restOperation.response;
 }
 
 function getMaxDate() {
