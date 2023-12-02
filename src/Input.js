@@ -164,6 +164,7 @@ export default function Input({
                                 JSON.stringify(email) === JSON.stringify(initialState['email']) &&
                                 JSON.stringify(address) === JSON.stringify(initialState['address']) &&
                                 JSON.stringify(phones) === JSON.stringify(initialState['phones']);
+    const closeInputState = () => setInputState(isCreate ? false : { data: null, value: false });
     return (
         <Card sx={{ width: '100%', margin: 'auto', display: 'block' }}>
             <CardContent>
@@ -461,7 +462,7 @@ export default function Input({
                 <Grid container justifyContent={'space-between'}>
                     <Grid item xs={12} style={{ alignSelf: 'stretch' }}><br/></Grid>
                     <Grid item>
-                        <IconButton onClick={() => setInputState(false)}>
+                        <IconButton onClick={closeInputState}>
                             {isCreate ? (
                                 <PersonAddDisabledIcon />
                             ) : (
@@ -495,7 +496,7 @@ export default function Input({
                                     setIsLoading(true);
                                     createMember({ member: member, isSpouse: isSpouse })
                                         .then(() => {
-                                            setInputState(false);
+                                            closeInputState();
                                             getData().then(() => setIsLoading(false));
                                             setOpenSnackBarSuccess(true);
                                         })
@@ -507,7 +508,7 @@ export default function Input({
                                     setIsLoading(true);
                                     updateMember({ id: data['id'], member: member })
                                         .then(() => {
-                                            setInputState(false);
+                                            closeInputState();
                                             getData(data['id']).then(() => setIsLoading(false));
                                             setOpenSnackBarSuccess(true);
                                         })

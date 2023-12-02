@@ -6,6 +6,7 @@ import Box from "@mui/material/Box";
 import {CircularProgress} from "@mui/material";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
 import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider";
+import {ConfirmProvider} from "material-ui-confirm";
 
 export default function App() {
 
@@ -37,7 +38,9 @@ export default function App() {
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs}>
             <TitleBar />
-            <Content />
+            <ConfirmProvider>
+                <Content />
+            </ConfirmProvider>
         </LocalizationProvider>
     );
 }

@@ -3,7 +3,7 @@ import {
     Card,
     CardContent,
     CardHeader,
-    CircularProgress,
+    CircularProgress, Dialog,
     FormControl, FormLabel,
     Grid,
     IconButton, InputLabel, MenuItem, Select,
@@ -27,11 +27,14 @@ import dayjs from 'dayjs';
 import Input from "./Input";
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
 import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import {useConfirm} from "material-ui-confirm";
 
 const SNACKBAR_ANCHOR = { vertical: 'top', horizontal: 'center' };
 const SNACKBAR_MARGIN = { mt: '64px' };
+const DELETE_MEMBER_WARNING = 'Deleting a Member is permanent. Their data and account, if present, will be lost!';
 
-let setId, caller, setCaller, setData, setIsEditing;
+let setId, caller, setCaller, setData, setIsLoading, setIsEditing, confirmDelete, setOpenSnackBarError, setOpenSnackBarSuccess;
 
 async function getMember (id = null) {
     const init = {
@@ -45,6 +48,18 @@ async function getMember (id = null) {
         }
     };
     return await API.get('HttpApi', '/get', init);
+}
+
+async function deleteMember(id) {
+    const init = {
+        headers: {
+            Authorization: `Bearer ${(await Auth.currentSession()).getAccessToken().getJwtToken()}`
+        },
+        body: {
+            id: id
+        }
+    }
+    return await API.del('HttpApi', '/delete', init);
 }
 
 async function getData(id = null) {
@@ -139,6 +154,7 @@ function displayAddress (data) {
 
 function displayCard (data, isDescendant = false, width = '75%') {
     let isEditable = false;
+    const isDeletableSpouse = !isDescendant && 'spouse' in caller && caller['member']['id'] === caller['member']['familyId'] && data['id'] === caller['spouse']['id'];
     if (!isDescendant) {
         isEditable = data['id'] === caller['member']['id'];
         if (!isEditable && 'spouse' in caller) {
@@ -166,11 +182,35 @@ function displayCard (data, isDescendant = false, width = '75%') {
                                 <IconButton onClick={() => setId(data['id'])}>
                                     <TrendingDownIcon />
                                 </IconButton>
-                            ) : isEditable ? (
-                                <IconButton onClick={() => setIsEditing(true)}>
-                                    <EditIcon />
-                                </IconButton>
-                            ) : (<></>)
+                            ) :
+                                <>
+                                    {isDeletableSpouse && (
+                                        <IconButton
+                                            onClick={() => {
+                                                confirmDelete({ description: DELETE_MEMBER_WARNING })
+                                                    .then(() => {
+                                                        setIsLoading(true);
+                                                        deleteMember(data['id'])
+                                                            .then(() => {
+                                                                getData().then(() => setIsLoading(false));
+                                                                setOpenSnackBarSuccess(true);
+                                                            })
+                                                            .catch(() => {
+                                                                setIsLoading(false);
+                                                                setOpenSnackBarError(true);
+                                                            });
+                                                    });
+                                            }}
+                                        >
+                                            <DeleteForeverIcon />
+                                        </IconButton>
+                                    )}
+                                    {isEditable && (
+                                        <IconButton onClick={() => setIsEditing({ data: data, value: true })}>
+                                            <EditIcon />
+                                        </IconButton>
+                                    )}
+                                </>
                     }
                 />
                 <Grid container
@@ -192,18 +232,24 @@ function displayCard (data, isDescendant = false, width = '75%') {
 }
 
 export default function Content() {
+    confirmDelete = useConfirm();
     let id;
     [id, setId] = useState(null);
     [caller, setCaller] = useState(null);
-    const [isLoading, setIsLoading] = useState(true);
+    let isLoading;
+    [isLoading, setIsLoading] = useState(true);
     let data;
     [data, setData] = useState(null);
     let isEditing;
-    [isEditing, setIsEditing] = useState(false);
+    [isEditing, setIsEditing] = useState({
+        data: null,
+        value: false
+    });
     const [isCreatingDescendant, setIsCreatingDescendant] = useState(false);
     const [isCreatingSpouse, setIsCreatingSpouse] = useState(false);
-    const [openSnackBarError, setOpenSnackBarError] = useState(false);
-    const [openSnackBarSuccess, setOpenSnackBarSuccess] = useState(false);
+    let openSnackBarError, openSnackBarSuccess;
+    [openSnackBarError, setOpenSnackBarError] = useState(false);
+    [openSnackBarSuccess, setOpenSnackBarSuccess] = useState(false);
 
     const handleSnackBarClose = () => {
         setOpenSnackBarError(false);
@@ -267,10 +313,11 @@ export default function Content() {
                   direction={'column'}
                   alignItems={'center'}
             >
-                { isEditing || isCreatingDescendant || isCreatingSpouse ? (
+                { isEditing['value'] || isCreatingDescendant || isCreatingSpouse ? (
                     <Grid item sx={{ width: '75%' }}>
-                        {isEditing && (
-                            <Input setInputState={setIsEditing}
+                        {isEditing['value'] && (
+                            <Input data={isEditing['data']}
+                                   setInputState={setIsEditing}
                                    setIsLoading={setIsLoading}
                                    getData={getData}
                                    setOpenSnackBarSuccess={setOpenSnackBarSuccess}
