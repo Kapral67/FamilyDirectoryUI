@@ -1,12 +1,13 @@
-import TitleBar from "./TitleBar";
-import Content from "./Content";
-import {Auth} from "aws-amplify";
-import {useEffect, useState} from "react";
-import Box from "@mui/material/Box";
-import {CircularProgress} from "@mui/material";
-import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
-import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider";
-import {ConfirmProvider} from "material-ui-confirm";
+
+import TitleBar from './TitleBar';
+import Content from './Content';
+import {Auth} from 'aws-amplify';
+import {useEffect, useState} from 'react';
+import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
+import {AdapterDayjs} from '@mui/x-date-pickers/AdapterDayjs';
+import {LocalizationProvider} from '@mui/x-date-pickers/LocalizationProvider';
+import {ConfirmProvider} from 'material-ui-confirm';
 
 export default function App() {
 

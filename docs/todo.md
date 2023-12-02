@@ -1,4 +1,4 @@
 ## Dec 02
 
 - [ ] Add `amplify.yml`
-- [ ] Configure npm dependabot updates
+- [x] Configure npm dependabot updates

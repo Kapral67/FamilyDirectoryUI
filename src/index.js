@@ -1,9 +1,10 @@
+
+import './index.css';
+import App from './App';
 import { Amplify } from 'aws-amplify';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from "./App";
-import {createTheme, ThemeProvider} from "@mui/material";
+import {createTheme, ThemeProvider} from '@mui/material';
 
 document.title = `${process.env.REACT_APP_SURNAME} Family Directory`;
 
@@ -29,7 +30,7 @@ Amplify.configure({
     API: {
         endpoints: [
             {
-                name: "HttpApi",
+                name: 'HttpApi',
                 endpoint: process.env.REACT_APP_API_DOMAIN
             }
         ]

@@ -1,25 +1,24 @@
-import {
-    Alert,
-    Card,
-    CardContent,
-    CardHeader,
-    CircularProgress,
-    Grid,
-    IconButton,
-    Snackbar
-} from '@mui/material';
-import Typography from '@mui/material/Typography';
+
+import Input from './Input';
+import {Auth, API} from 'aws-amplify';
+import {useConfirm} from 'material-ui-confirm';
 import {useEffect, useState} from 'react';
+import Alert from '@mui/material/Alert';
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import CardHeader from '@mui/material/CardHeader';
+import CircularProgress from '@mui/material/CircularProgress';
+import Grid from '@mui/material/Grid';
+import IconButton from '@mui/material/IconButton';
+import Snackbar from '@mui/material/Snackbar';
+import Typography from '@mui/material/Typography';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
-import Box from '@mui/material/Box';
 import EditIcon from '@mui/icons-material/Edit';
-import {Auth, API} from "aws-amplify";
-import Input from "./Input";
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
 import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
-import {useConfirm} from "material-ui-confirm";
 
 const SNACKBAR_ANCHOR = { vertical: 'top', horizontal: 'center' };
 const SNACKBAR_MARGIN = { mt: '64px' };
@@ -73,10 +72,10 @@ function getDate(date) {
 function displayBirthday(data) {
     return (
         <Grid item>
-            <Typography variant="body2">
+            <Typography variant={'body2'}>
                 <b>Birthday:</b>
             </Typography>
-            <Typography variant="body2">
+            <Typography variant={'body2'}>
                 {getDate(data['birthday'])}
             </Typography>
         </Grid>
@@ -86,8 +85,8 @@ function displayBirthday(data) {
 function displayDeathday (data) {
     return 'deathday' in data ? (
         <Grid item>
-            <Typography variant="body2"><b>Deathday:</b></Typography>
-            <Typography variant="body2">{getDate(data['deathday'])}</Typography>
+            <Typography variant={'body2'}><b>Deathday:</b></Typography>
+            <Typography variant={'body2'}>{getDate(data['deathday'])}</Typography>
         </Grid>
     ) : (<></>);
 }
@@ -95,8 +94,8 @@ function displayDeathday (data) {
 function displayEmail (data) {
     return 'email' in data ? (
         <Grid item>
-            <Typography variant="body2"><b>Email:</b></Typography>
-            <Typography variant="body2">{data['email']}</Typography>
+            <Typography variant={'body2'}><b>Email:</b></Typography>
+            <Typography variant={'body2'}>{data['email']}</Typography>
         </Grid>
     ) : (<></>);
 }
@@ -106,26 +105,26 @@ function displayPhones (data) {
         if ('LANDLINE' in data['phones'] && 'MOBILE' in data['phones']) {
             return (<>
                         <Grid item>
-                            <Typography variant="body2"><b>Mobile Phone:</b></Typography>
-                            <Typography variant="body2">{data['phones']['MOBILE']}</Typography>
+                            <Typography variant={'body2'}><b>Mobile Phone:</b></Typography>
+                            <Typography variant={'body2'}>{data['phones']['MOBILE']}</Typography>
                         </Grid>
                         <Grid item>
-                            <Typography variant="body2"><b>Landline Phone:</b></Typography>
-                            <Typography variant="body2">{data['phones']['LANDLINE']}</Typography>
+                            <Typography variant={'body2'}><b>Landline Phone:</b></Typography>
+                            <Typography variant={'body2'}>{data['phones']['LANDLINE']}</Typography>
                         </Grid>
                     </>);
         }else if ('MOBILE' in data['phones']) {
             return (
                 <Grid item>
-                    <Typography variant="body2"><b>Mobile Phone:</b></Typography>
-                    <Typography variant="body2">{data['phones']['MOBILE']}</Typography>
+                    <Typography variant={'body2'}><b>Mobile Phone:</b></Typography>
+                    <Typography variant={'body2'}>{data['phones']['MOBILE']}</Typography>
                 </Grid>
             );
         } else {
             return (
                 <Grid item>
-                    <Typography variant="body2"><b>Landline Phone:</b></Typography>
-                    <Typography variant="body2">{data['phones']['LANDLINE']}</Typography>
+                    <Typography variant={'body2'}><b>Landline Phone:</b></Typography>
+                    <Typography variant={'body2'}>{data['phones']['LANDLINE']}</Typography>
                 </Grid>
             );
         }
@@ -137,8 +136,8 @@ function displayPhones (data) {
 function displayAddress (data) {
     return 'address' in data ? (
         <Grid item>
-            <Typography variant="body2"><b>Address:</b></Typography>
-            <Typography variant="body2" style={{whiteSpace: 'pre-line'}}>{data['address'].join('\n')}</Typography>
+            <Typography variant={'body2'}><b>Address:</b></Typography>
+            <Typography variant={'body2'} style={{whiteSpace: 'pre-line'}}>{data['address'].join('\n')}</Typography>
         </Grid>
     ) : (<></>);
 }
