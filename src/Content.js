@@ -159,7 +159,7 @@ function displayCard (data, isDescendant = false, width = '75%') {
                     const dateParts = descendant['birthday'].split('-').map(Number);
                     const date = new Date(Date.UTC(dateParts[0], dateParts[1] - 1, dateParts[2]));
                     const now = new Date();
-                    return date.getTime() <= new Date(Date.UTC(now.getUTCFullYear() - +process.env.REACT_APP_AGE_OF_MAJORITY, now.getUTCMonth(), now.getUTCDate())).getTime();
+                    return date.getTime() > new Date(Date.UTC(now.getUTCFullYear() - +process.env.REACT_APP_AGE_OF_MAJORITY, now.getUTCMonth(), now.getUTCDate())).getTime();
                 } else {
                     return false;
                 }
