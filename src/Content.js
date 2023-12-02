@@ -1,4 +1,5 @@
 import {
+    Alert,
     Card,
     CardContent,
     CardHeader,
@@ -27,10 +28,13 @@ import Input from "./Input";
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
 import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
 
+const SNACKBAR_ANCHOR = { vertical: 'top', horizontal: 'center' };
+const SNACKBAR_MARGIN = { mt: '64px' };
+
 let setId, caller, setCaller, setData, setIsEditing;
 
-async function getMember (id) {
-    let init = {
+async function getMember (id = null) {
+    const init = {
         headers: {
             Authorization: `Bearer ${(await Auth.currentSession()).getAccessToken().getJwtToken()}`
         },
@@ -39,11 +43,11 @@ async function getMember (id) {
                 id: `${id}`
             }
         }
-    }
+    };
     return await API.get('HttpApi', '/get', init);
 }
 
-async function getData(id) {
+async function getData(id = null) {
     const data = await getMember(id);
     if (id === null) {
         setCaller(data);
@@ -196,6 +200,13 @@ export default function Content() {
     [data, setData] = useState(null);
     let isEditing;
     [isEditing, setIsEditing] = useState(false);
+    const [openSnackBarError, setOpenSnackBarError] = useState(false);
+    const [openSnackBarSuccess, setOpenSnackBarSuccess] = useState(false);
+
+    const handleSnackBarClose = () => {
+        setOpenSnackBarError(false);
+        setOpenSnackBarSuccess(false);
+    };
 
     useEffect(() => {
         setIsLoading(true);
@@ -230,6 +241,24 @@ export default function Content() {
                 height: 'calc(100vh - 64px)'
             }}
         >
+            <Snackbar
+                anchorOrigin={SNACKBAR_ANCHOR}
+                open={openSnackBarError}
+                autoHideDuration={6000}
+                onClose={handleSnackBarClose}
+                sx={SNACKBAR_MARGIN}
+            >
+                <Alert variant={'filled'} severity={'error'} sx={{ width: '100%' }}>Error!</Alert>
+            </Snackbar>
+            <Snackbar
+                anchorOrigin={SNACKBAR_ANCHOR}
+                open={openSnackBarSuccess}
+                autoHideDuration={6000}
+                onClose={handleSnackBarClose}
+                sx={SNACKBAR_MARGIN}
+            >
+                <Alert variant={'filled'} severity={'success'}>Success!</Alert>
+            </Snackbar>
             <Grid container
                   spacing={1}
                   columnSpacing={{ xs: 12 }}
@@ -238,7 +267,13 @@ export default function Content() {
             >
                 { isEditing ? (
                     <Grid item sx={{ width: '75%' }}>
-                        <Input data={data['member']} setInputState={setIsEditing} />
+                        <Input data={data['member']}
+                               setInputState={setIsEditing}
+                               setIsLoading={setIsLoading}
+                               getData={getData}
+                               setOpenSnackBarSuccess={setOpenSnackBarSuccess}
+                               setOpenSnackBarError={setOpenSnackBarError}
+                        />
                     </Grid>
                 ) : (
                     <>

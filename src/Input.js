@@ -7,6 +7,7 @@ import SaveAsIcon from "@mui/icons-material/SaveAs";
 import {useState} from "react";
 import isEmail from 'validator/lib/isEmail';
 import PersonAddDisabledIcon from '@mui/icons-material/PersonAddDisabled';
+import {API, Auth} from "aws-amplify";
 
 const NAME_VALIDATOR_REGEX = /^[A-Za-z\-'_]+$/;
 const NAME_VALIDATOR_REGEX_OPT = /^[A-Za-z\-'_]*$/;
@@ -16,13 +17,42 @@ const WHITESPACE_MATCHER_REGEX = /\s/g;
 const MIN_DATE = dayjs('1000-01-01');
 const DAGGER = '†';
 
+async function updateMember(request) {
+    const init = {
+        headers: {
+            Authorization: `Bearer ${(await Auth.currentSession()).getAccessToken().getJwtToken()}`
+        },
+        body: request
+    }
+    return await API.put('HttpApi', '/update', init);
+}
+
+async function createMember(request) {
+    const init = {
+        headers: {
+            Authorization: `Bearer ${(await Auth.currentSession()).getAccessToken().getJwtToken()}`
+        },
+        body: request
+    }
+    console.log(init);
+    // return await API.post('HttpApi', '/create', init);
+}
+
 function getMaxDate() {
     const now = new Date();
     return dayjs(`${now.getUTCFullYear()+1}-${now.getUTCMonth()+1}-${now.getUTCDate()}`);
 }
 
 function getFormattedDate(date) {
-    return `${date.year()}-${date.month()+1}-${date.date()}`;
+    let month = date.month()+1;
+    if (month < 10) {
+        month = `0${month}`;
+    }
+    let day = date.date();
+    if (day < 10) {
+        day = `0${day}`;
+    }
+    return `${date.year()}-${month}-${day}`;
 }
 
 function getInitialState(data) {
@@ -79,7 +109,15 @@ function getInitialState(data) {
     return initialState;
 }
 
-export default function Input({setInputState, data = null, isSpouse = false}) {
+export default function Input({
+                                  setInputState,
+                                  setIsLoading,
+                                  getData,
+                                  setOpenSnackBarSuccess,
+                                  setOpenSnackBarError,
+                                  data = null,
+                                  isSpouse = false
+}) {
     const isCreate = data === null;
     const initialState = getInitialState(data);
     const [firstName, setFirstName] = useState(initialState['firstName']);
@@ -250,7 +288,17 @@ export default function Input({setInputState, data = null, isSpouse = false}) {
                                             label={'Deathday'}
                                             disableFuture
                                             defaultValue={deathday === '' ? null : dayjs(deathday)}
-                                            slotProps={{ textField: { error: error['deathday'] } }}
+                                            slotProps={{
+                                                actionBar: {
+                                                    actions: ['clear', 'cancel', 'accept']
+                                                },
+                                                field: {
+                                                    clearable: true
+                                                },
+                                                textField: {
+                                                    error: error['deathday']
+                                                }
+                                            }}
                                             onChange={(date, context) => {
                                                 const deathdayHasError = context.validationError !== null;
                                                 setError({
@@ -286,6 +334,7 @@ export default function Input({setInputState, data = null, isSpouse = false}) {
                                                 });
                                             }}
                                             error={error['email']}
+                                            disabled={deathday !== ''}
                                         />
                                     </FormControl>
                                 </Grid>
@@ -316,6 +365,7 @@ export default function Input({setInputState, data = null, isSpouse = false}) {
                                                 });
                                             }}
                                             error={error['address'][0]}
+                                            disabled={deathday !== ''}
                                         />
                                     </FormControl>
                                 </Grid>
@@ -337,7 +387,7 @@ export default function Input({setInputState, data = null, isSpouse = false}) {
                                                 });
                                             }}
                                             required={address[0] !== ''}
-                                            disabled={address[0] === '' && address[1] === ''}
+                                            disabled={deathday !== '' || (address[0] === '' && address[1] === '')}
                                             error={error['address'][1]}
                                         />
                                     </FormControl>
@@ -374,6 +424,7 @@ export default function Input({setInputState, data = null, isSpouse = false}) {
                                                 });
                                             }}
                                             error={error['phones']['MOBILE']}
+                                            disabled={deathday !== ''}
                                         />
                                     </FormControl>
                                 </Grid>
@@ -400,6 +451,7 @@ export default function Input({setInputState, data = null, isSpouse = false}) {
                                                 });
                                             }}
                                             error={error['phones']['LANDLINE']}
+                                            disabled={deathday !== ''}
                                         />
                                     </FormControl>
                                 </Grid>
@@ -440,8 +492,20 @@ export default function Input({setInputState, data = null, isSpouse = false}) {
                                     address: address[0] === '' && address[1] === '' ? null : address,
                                     phones: telephones['LANDLINE'] === '' && telephones['MOBILE'] === '' ? null : telephones
                                 };
-                                // TODO:
-                                console.log(isCreate ? { member: member, isSpouse: isSpouse } : { id: data['id'], member: member });
+                                if (isCreate) {
+                                    createMember({ member: member, isSpouse: isSpouse });
+                                } else {
+                                    setIsLoading(true);
+                                    updateMember({ id: data['id'], member: member }).then(() => {
+                                        setInputState(false);
+                                        getData(data['id']).then(() => setIsLoading(false));
+                                        setOpenSnackBarSuccess(true);
+                                    })
+                                    .catch(() => {
+                                        setIsLoading(false);
+                                        setOpenSnackBarError(true);
+                                    });
+                                }
                             }}
                         >
                             <SaveAsIcon />
