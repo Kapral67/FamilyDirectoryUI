@@ -200,6 +200,8 @@ export default function Content() {
     [data, setData] = useState(null);
     let isEditing;
     [isEditing, setIsEditing] = useState(false);
+    const [isCreatingDescendant, setIsCreatingDescendant] = useState(false);
+    const [isCreatingSpouse, setIsCreatingSpouse] = useState(false);
     const [openSnackBarError, setOpenSnackBarError] = useState(false);
     const [openSnackBarSuccess, setOpenSnackBarSuccess] = useState(false);
 
@@ -265,15 +267,33 @@ export default function Content() {
                   direction={'column'}
                   alignItems={'center'}
             >
-                { isEditing ? (
+                { isEditing || isCreatingDescendant || isCreatingSpouse ? (
                     <Grid item sx={{ width: '75%' }}>
-                        <Input data={data['member']}
-                               setInputState={setIsEditing}
-                               setIsLoading={setIsLoading}
-                               getData={getData}
-                               setOpenSnackBarSuccess={setOpenSnackBarSuccess}
-                               setOpenSnackBarError={setOpenSnackBarError}
-                        />
+                        {isEditing && (
+                            <Input setInputState={setIsEditing}
+                                   setIsLoading={setIsLoading}
+                                   getData={getData}
+                                   setOpenSnackBarSuccess={setOpenSnackBarSuccess}
+                                   setOpenSnackBarError={setOpenSnackBarError}
+                            />
+                        )}
+                        {isCreatingDescendant && (
+                            <Input setInputState={setIsCreatingDescendant}
+                                   setIsLoading={setIsLoading}
+                                   getData={getData}
+                                   setOpenSnackBarSuccess={setOpenSnackBarSuccess}
+                                   setOpenSnackBarError={setOpenSnackBarError}
+                            />
+                        )}
+                        {isCreatingSpouse && (
+                            <Input setInputState={setIsCreatingSpouse}
+                                   setIsLoading={setIsLoading}
+                                   getData={getData}
+                                   setOpenSnackBarSuccess={setOpenSnackBarSuccess}
+                                   setOpenSnackBarError={setOpenSnackBarError}
+                                   isSpouse={true}
+                            />
+                        )}
                     </Grid>
                 ) : (
                     <>
@@ -305,6 +325,7 @@ export default function Content() {
                                                 <IconButton
                                                     size={'large'}
                                                     color={'inherit'}
+                                                    onClick={() => setIsCreatingSpouse(true)}
                                                 >
                                                     <PersonAddAlt1Icon />
                                                 </IconButton>
@@ -344,6 +365,7 @@ export default function Content() {
                                 <IconButton
                                     size={'large'}
                                     color={'inherit'}
+                                    onClick={() => setIsCreatingDescendant(true)}
                                 >
                                     <GroupAddIcon />
                                 </IconButton>

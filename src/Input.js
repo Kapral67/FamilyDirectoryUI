@@ -34,8 +34,7 @@ async function createMember(request) {
         },
         body: request
     }
-    console.log(init);
-    // return await API.post('HttpApi', '/create', init);
+    return await API.post('HttpApi', '/create', init);
 }
 
 function getMaxDate() {
@@ -493,18 +492,29 @@ export default function Input({
                                     phones: telephones['LANDLINE'] === '' && telephones['MOBILE'] === '' ? null : telephones
                                 };
                                 if (isCreate) {
-                                    createMember({ member: member, isSpouse: isSpouse });
+                                    setIsLoading(true);
+                                    createMember({ member: member, isSpouse: isSpouse })
+                                        .then(() => {
+                                            setInputState(false);
+                                            getData().then(() => setIsLoading(false));
+                                            setOpenSnackBarSuccess(true);
+                                        })
+                                        .catch(() => {
+                                            setIsLoading(false);
+                                            setOpenSnackBarError(true);
+                                        });
                                 } else {
                                     setIsLoading(true);
-                                    updateMember({ id: data['id'], member: member }).then(() => {
-                                        setInputState(false);
-                                        getData(data['id']).then(() => setIsLoading(false));
-                                        setOpenSnackBarSuccess(true);
-                                    })
-                                    .catch(() => {
-                                        setIsLoading(false);
-                                        setOpenSnackBarError(true);
-                                    });
+                                    updateMember({ id: data['id'], member: member })
+                                        .then(() => {
+                                            setInputState(false);
+                                            getData(data['id']).then(() => setIsLoading(false));
+                                            setOpenSnackBarSuccess(true);
+                                        })
+                                        .catch(() => {
+                                            setIsLoading(false);
+                                            setOpenSnackBarError(true);
+                                        });
                                 }
                             }}
                         >
