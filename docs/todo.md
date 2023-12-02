@@ -1,5 +1,4 @@
-## Nov 08
+## Dec 02
 
 - [ ] Add `amplify.yml`
-- [ ] Figure out how to dynamically create and update Content
 - [ ] Configure npm dependabot updates
