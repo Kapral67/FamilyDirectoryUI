@@ -3,27 +3,18 @@ import {
     Card,
     CardContent,
     CardHeader,
-    CircularProgress, Dialog,
-    FormControl, FormLabel,
+    CircularProgress,
     Grid,
-    IconButton, InputLabel, MenuItem, Select,
-    Snackbar,
-    TextField,
-    Tooltip
+    IconButton,
+    Snackbar
 } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import {useEffect, useState} from 'react';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import EditOffIcon from '@mui/icons-material/EditOff';
-import SaveAsIcon from '@mui/icons-material/SaveAs';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import Box from '@mui/material/Box';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import EditIcon from '@mui/icons-material/Edit';
-import {DatePicker} from '@mui/x-date-pickers/DatePicker';
 import {Auth, API} from "aws-amplify";
-import {Upcoming} from "@mui/icons-material";
-import dayjs from 'dayjs';
 import Input from "./Input";
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
 import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
@@ -187,8 +178,12 @@ function displayCard (data, isDescendant = false, width = '75%') {
                                     {isDeletableSpouse && (
                                         <IconButton
                                             onClick={() => {
-                                                confirmDelete({ description: DELETE_MEMBER_WARNING })
-                                                    .then(() => {
+                                                confirmDelete({
+                                                    confirmationText: 'Delete',
+                                                    description: DELETE_MEMBER_WARNING,
+                                                    confirmationButtonProps: { color: 'error' },
+                                                    cancellationButtonProps: { color: 'info' }
+                                                }).then(() => {
                                                         setIsLoading(true);
                                                         deleteMember(data['id'])
                                                             .then(() => {
@@ -199,7 +194,8 @@ function displayCard (data, isDescendant = false, width = '75%') {
                                                                 setIsLoading(false);
                                                                 setOpenSnackBarError(true);
                                                             });
-                                                    });
+                                                    })
+                                                    .catch(() => {});
                                             }}
                                         >
                                             <DeleteForeverIcon />
@@ -312,6 +308,7 @@ export default function Content() {
                   columnSpacing={{ xs: 12 }}
                   direction={'column'}
                   alignItems={'center'}
+                  sx={{ mt: 2, mb: 2 }}
             >
                 { isEditing['value'] || isCreatingDescendant || isCreatingSpouse ? (
                     <Grid item sx={{ width: '75%' }}>
