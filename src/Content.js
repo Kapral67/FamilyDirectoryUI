@@ -377,12 +377,17 @@ export default function Content() {
                                                 </IconButton>
                                             </Grid>
                                         </Grid>
-                                    ) : displayCard(data['member'])
+                                    ) : 'spouse' in data && data['spouse']['id'] === caller['member']['id']
+                                            ? displayCard(data['spouse'])
+                                            : displayCard(data['member'])
                                     }
                                 </Grid>
                                 { 'spouse' in data && (
                                     <Grid item xs={12} sm={6}>
-                                        {displayCard(data['spouse'])}
+                                        {data['spouse']['id'] === caller['member']['id']
+                                            ? displayCard(data['member'])
+                                            : displayCard(data['spouse'])
+                                        }
                                     </Grid>
                                 )}
                             </Grid>
