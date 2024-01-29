@@ -25,7 +25,7 @@ export default function TitleBar() {
             const blob = await body.blob();
             let link = document.createElement('a');
             link.href = window.URL.createObjectURL(blob);
-            link.download = `${process.env.REACT_APP_SURNAME}FamilyDirectory.pdf`;
+            link.download = process.env.REACT_APP_SURNAME + (process.env.REACT_APP_BACKEND_VERSION <= 0.42) ? 'FamilyDirectory.pdf' : 'Family.zip';
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
