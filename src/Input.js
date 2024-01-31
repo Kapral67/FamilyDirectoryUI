@@ -508,7 +508,7 @@ export default function Input({
                                     createMember(request)
                                         .then(() => {
                                             closeInputState();
-                                            getData().then(() => setIsLoading(false));
+                                            getData(ancestor).then(() => setIsLoading(false));
                                             setOpenSnackBarSuccess(true);
                                         })
                                         .catch(() => {
@@ -520,7 +520,7 @@ export default function Input({
                                     updateMember({ id: data['id'], member: member })
                                         .then(() => {
                                             closeInputState();
-                                            getData(data['id']).then(() => setIsLoading(false));
+                                            getData(ancestor !== null ? ancestor : data['id']).then(() => setIsLoading(false));
                                             setOpenSnackBarSuccess(true);
                                         })
                                         .catch(() => {

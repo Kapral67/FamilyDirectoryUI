@@ -148,7 +148,7 @@ function displayAddress (data) {
 function displayCard (data, isDescendant = false, width = '75%', isDeletableByAdmin = false) {
     let isEditable = false;
     const isDeletableSpouse = !isDescendant && 'spouse' in caller && caller['member']['id'] === caller['member']['familyId'] && data['id'] === caller['spouse']['id'];
-    isDeletableByAdmin &&= isDescendant;
+    isDeletableByAdmin &&= !isDescendant && data['id'] !== caller['member']['id'];
     if (!isDescendant) {
         isEditable = caller['memberIsAdmin'] || data['id'] === caller['member']['id'];
         if (!isEditable && 'spouse' in caller) {
@@ -330,7 +330,7 @@ export default function Content() {
                                    getData={getData}
                                    setOpenSnackBarSuccess={setOpenSnackBarSuccess}
                                    setOpenSnackBarError={setOpenSnackBarError}
-                                   ancestor={data['ancestor']}
+                                   ancestor={caller['memberIsAdmin'] ? data['member']['familyId'] : null}
                             />
                         )}
                         {isCreatingSpouse && (
@@ -340,7 +340,7 @@ export default function Content() {
                                    setOpenSnackBarSuccess={setOpenSnackBarSuccess}
                                    setOpenSnackBarError={setOpenSnackBarError}
                                    isSpouse={true}
-                                   ancestor={data['ancestor']}
+                                   ancestor={caller['memberIsAdmin'] ? data['member']['familyId'] : null}
                             />
                         )}
                     </Grid>
@@ -368,7 +368,7 @@ export default function Content() {
                                               alignItems={'center'}
                                         >
                                             <Grid item xs={9}>
-                                                {displayCard(data['member'], false, 'fit-content', caller['memberIsAdmin'] && !('spouse' in data) && !('descendants' in data))}
+                                                {displayCard(data['member'], false, 'fit-content', caller['memberIsAdmin'] && !('descendants' in data))}
                                             </Grid>
                                             <Grid item xs={1}>
                                                 <IconButton
@@ -381,15 +381,15 @@ export default function Content() {
                                             </Grid>
                                         </Grid>
                                     ) : 'spouse' in data && data['spouse']['id'] === caller['member']['id']
-                                            ? displayCard(data['spouse'])
-                                            : displayCard(data['member'], false, '75%', caller['memberIsAdmin'] && !('spouse' in data) && !('descendants' in data))
+                                            ? displayCard(data['spouse'], false, '75%', caller['memberIsAdmin'] && data['spouse']['id'] !== data['spouse']['familyId'])
+                                            : displayCard(data['member'], false, '75%', caller['memberIsAdmin'] && (data['member']['id'] !== data['member']['familyId'] || (!('spouse' in data) && !('descendants' in data))))
                                     }
                                 </Grid>
                                 { 'spouse' in data && (
                                     <Grid item xs={12} sm={6}>
                                         {data['spouse']['id'] === caller['member']['id']
-                                            ? displayCard(data['member'])
-                                            : displayCard(data['spouse'])
+                                            ? displayCard(data['member'], false, '75%', caller['memberIsAdmin'] && (data['member']['id'] !== data['member']['familyId'] || (!('spouse' in data) && !('descendants' in data))))
+                                            : displayCard(data['spouse'], false, '75%', caller['memberIsAdmin'] && data['spouse']['id'] !== data['spouse']['familyId'])
                                         }
                                     </Grid>
                                 )}
