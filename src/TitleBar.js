@@ -21,11 +21,11 @@ export default function TitleBar() {
                 apiName: 'HttpApi',
                 path: '/pdf'
             });
-            const {body} = await getPdf.response;
-            const blob = await body.blob();
+            const response = await getPdf.response;
+            const blob = await response.body.blob();
             let link = document.createElement('a');
             link.href = window.URL.createObjectURL(blob);
-            link.download = `${process.env.REACT_APP_SURNAME}` + (parseFloat(process.env.REACT_APP_BACKEND_VERSION) <= 0.42 ? 'FamilyDirectory.pdf' : 'Family.zip');
+            link.download = `${process.env.REACT_APP_SURNAME}` + (response.headers['content-type'] === 'application/zip' ? 'Family.zip' : 'FamilyDirectory.pdf');
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
