@@ -145,11 +145,12 @@ function displayAddress (data) {
     ) : (<></>);
 }
 
-function displayCard (data, isDescendant = false, width = '75%') {
+function displayCard (data, isDescendant = false, width = '75%', isDeletableByAdmin = false) {
     let isEditable = false;
     const isDeletableSpouse = !isDescendant && 'spouse' in caller && caller['member']['id'] === caller['member']['familyId'] && data['id'] === caller['spouse']['id'];
+    isDeletableByAdmin &&= isDescendant;
     if (!isDescendant) {
-        isEditable = data['id'] === caller['member']['id'];
+        isEditable = caller['memberIsAdmin'] || data['id'] === caller['member']['id'];
         if (!isEditable && 'spouse' in caller) {
             isEditable = data['id'] === caller['spouse']['id'];
         }
@@ -177,7 +178,7 @@ function displayCard (data, isDescendant = false, width = '75%') {
                                 </IconButton>
                             ) :
                                 <>
-                                    {isDeletableSpouse && (
+                                    {(isDeletableByAdmin || isDeletableSpouse) && (
                                         <IconButton
                                             onClick={() => {
                                                 confirmDelete({
@@ -329,6 +330,7 @@ export default function Content() {
                                    getData={getData}
                                    setOpenSnackBarSuccess={setOpenSnackBarSuccess}
                                    setOpenSnackBarError={setOpenSnackBarError}
+                                   ancestor={data['ancestor']}
                             />
                         )}
                         {isCreatingSpouse && (
@@ -338,6 +340,7 @@ export default function Content() {
                                    setOpenSnackBarSuccess={setOpenSnackBarSuccess}
                                    setOpenSnackBarError={setOpenSnackBarError}
                                    isSpouse={true}
+                                   ancestor={data['ancestor']}
                             />
                         )}
                     </Grid>
@@ -357,7 +360,7 @@ export default function Content() {
                         <Grid item>
                             <Grid container spacing={2}>
                                 <Grid item xs={12} sm={'spouse' in data ? 6 : 12}>
-                                    {!('spouse' in data) && caller['member']['familyId'] === data['member']['familyId'] ? (
+                                    {!('spouse' in data) && (caller['memberIsAdmin'] || caller['member']['familyId'] === data['member']['familyId']) ? (
                                         <Grid container
                                               spacing={1}
                                               direction={'row'}
@@ -365,7 +368,7 @@ export default function Content() {
                                               alignItems={'center'}
                                         >
                                             <Grid item xs={9}>
-                                                {displayCard(data['member'], false, 'fit-content')}
+                                                {displayCard(data['member'], false, 'fit-content', caller['memberIsAdmin'] && !('spouse' in data) && !('descendants' in data))}
                                             </Grid>
                                             <Grid item xs={1}>
                                                 <IconButton
@@ -379,7 +382,7 @@ export default function Content() {
                                         </Grid>
                                     ) : 'spouse' in data && data['spouse']['id'] === caller['member']['id']
                                             ? displayCard(data['spouse'])
-                                            : displayCard(data['member'])
+                                            : displayCard(data['member'], false, '75%', caller['memberIsAdmin'] && !('spouse' in data) && !('descendants' in data))
                                     }
                                 </Grid>
                                 { 'spouse' in data && (
@@ -411,7 +414,7 @@ export default function Content() {
                                 </Grid>
                             </>
                         )}
-                        {data['member']['familyId'] === caller['member']['familyId'] && (
+                        {(caller['memberIsAdmin'] || data['member']['familyId'] === caller['member']['familyId']) && (
                             <Grid item>
                                 <IconButton
                                     size={'large'}

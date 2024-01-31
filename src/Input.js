@@ -124,7 +124,8 @@ export default function Input({
                                   setOpenSnackBarSuccess,
                                   setOpenSnackBarError,
                                   data = null,
-                                  isSpouse = false
+                                  isSpouse = false,
+                                  ancestor = null
 }) {
     const isCreate = data === null;
     const initialState = getInitialState(data);
@@ -503,7 +504,8 @@ export default function Input({
                                 };
                                 if (isCreate) {
                                     setIsLoading(true);
-                                    createMember({ member: member, isSpouse: isSpouse })
+                                    const request = { member: member, isSpouse: isSpouse, ...(parseFloat(process.env.REACT_APP_BACKEND_VERSION) > 0.5 && { ancestor: ancestor }) };
+                                    createMember(request)
                                         .then(() => {
                                             closeInputState();
                                             getData().then(() => setIsLoading(false));
