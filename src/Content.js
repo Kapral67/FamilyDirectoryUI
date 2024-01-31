@@ -145,7 +145,7 @@ function displayAddress (data) {
     ) : (<></>);
 }
 
-function displayCard (data, isDescendant = false, width = '75%', isDeletableByAdmin = false) {
+function displayCard (ancestor, data, isDescendant = false, width = '75%', isDeletableByAdmin = false) {
     let isEditable = false;
     const isDeletableSpouse = !isDescendant && 'spouse' in caller && caller['member']['id'] === caller['member']['familyId'] && data['id'] === caller['spouse']['id'];
     isDeletableByAdmin &&= !isDescendant && data['id'] !== caller['member']['id'];
@@ -190,7 +190,7 @@ function displayCard (data, isDescendant = false, width = '75%', isDeletableByAd
                                                         setIsLoading(true);
                                                         deleteMember(data['id'])
                                                             .then(() => {
-                                                                getData().then(() => setIsLoading(false));
+                                                                getData(ancestor).then(() => setIsLoading(false));
                                                                 setOpenSnackBarSuccess(true);
                                                             })
                                                             .catch(() => {
@@ -368,7 +368,7 @@ export default function Content() {
                                               alignItems={'center'}
                                         >
                                             <Grid item xs={9}>
-                                                {displayCard(data['member'], false, 'fit-content', caller['memberIsAdmin'] && !('descendants' in data))}
+                                                {displayCard(data['ancestor'], data['member'], false, 'fit-content', caller['memberIsAdmin'] && !('descendants' in data))}
                                             </Grid>
                                             <Grid item xs={1}>
                                                 <IconButton
@@ -381,15 +381,15 @@ export default function Content() {
                                             </Grid>
                                         </Grid>
                                     ) : 'spouse' in data && data['spouse']['id'] === caller['member']['id']
-                                            ? displayCard(data['spouse'], false, '75%', caller['memberIsAdmin'] && data['spouse']['id'] !== data['spouse']['familyId'])
-                                            : displayCard(data['member'], false, '75%', caller['memberIsAdmin'] && (data['member']['id'] !== data['member']['familyId'] || (!('spouse' in data) && !('descendants' in data))))
+                                            ? displayCard(data['ancestor'], data['spouse'], false, '75%', caller['memberIsAdmin'] && data['spouse']['id'] !== data['spouse']['familyId'])
+                                            : displayCard(data['ancestor'], data['member'], false, '75%', caller['memberIsAdmin'] && (data['member']['id'] !== data['member']['familyId'] || (!('spouse' in data) && !('descendants' in data))))
                                     }
                                 </Grid>
                                 { 'spouse' in data && (
                                     <Grid item xs={12} sm={6}>
                                         {data['spouse']['id'] === caller['member']['id']
-                                            ? displayCard(data['member'], false, '75%', caller['memberIsAdmin'] && (data['member']['id'] !== data['member']['familyId'] || (!('spouse' in data) && !('descendants' in data))))
-                                            : displayCard(data['spouse'], false, '75%', caller['memberIsAdmin'] && data['spouse']['id'] !== data['spouse']['familyId'])
+                                            ? displayCard(data['ancestor'], data['member'], false, '75%', caller['memberIsAdmin'] && (data['member']['id'] !== data['member']['familyId'] || (!('spouse' in data) && !('descendants' in data))))
+                                            : displayCard(data['ancestor'], data['spouse'], false, '75%', caller['memberIsAdmin'] && data['spouse']['id'] !== data['spouse']['familyId'])
                                         }
                                     </Grid>
                                 )}
@@ -407,7 +407,7 @@ export default function Content() {
                                     >
                                         {data['descendants'].map((descendant) => (
                                             <Grid item key={descendant['id']}>
-                                                {displayCard(descendant, true)}
+                                                {displayCard(data['member']['familyId'], descendant, true)}
                                             </Grid>
                                         ))}
                                     </Grid>
