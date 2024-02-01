@@ -124,7 +124,8 @@ export default function Input({
                                   setOpenSnackBarSuccess,
                                   setOpenSnackBarError,
                                   data = null,
-                                  isSpouse = false
+                                  isSpouse = false,
+                                  ancestor = null
 }) {
     const isCreate = data === null;
     const initialState = getInitialState(data);
@@ -498,15 +499,16 @@ export default function Input({
                                     birthday: birthday,
                                     deathday: deathday === '' ? null : deathday,
                                     email: email === '' ? null : email,
-                                    address: address[0] === '' && address[1] === '' ? null : address,
+                                    address: address[0] === '' || address[1] === '' ? null : address,
                                     phones: telephones['LANDLINE'] === '' && telephones['MOBILE'] === '' ? null : telephones
                                 };
                                 if (isCreate) {
                                     setIsLoading(true);
-                                    createMember({ member: member, isSpouse: isSpouse })
+                                    const request = { member: member, isSpouse: isSpouse, ...(parseFloat(process.env.REACT_APP_BACKEND_VERSION) > 0.5 && { ancestor: ancestor }) };
+                                    createMember(request)
                                         .then(() => {
                                             closeInputState();
-                                            getData().then(() => setIsLoading(false));
+                                            getData(ancestor).then(() => setIsLoading(false));
                                             setOpenSnackBarSuccess(true);
                                         })
                                         .catch(() => {
@@ -518,7 +520,7 @@ export default function Input({
                                     updateMember({ id: data['id'], member: member })
                                         .then(() => {
                                             closeInputState();
-                                            getData(data['id']).then(() => setIsLoading(false));
+                                            getData(ancestor !== null ? ancestor : data['id']).then(() => setIsLoading(false));
                                             setOpenSnackBarSuccess(true);
                                         })
                                         .catch(() => {
