@@ -499,7 +499,7 @@ export default function Input({
                                     birthday: birthday,
                                     deathday: deathday === '' ? null : deathday,
                                     email: email === '' ? null : email,
-                                    address: address[0] === '' && address[1] === '' ? null : address,
+                                    address: address[0] === '' || address[1] === '' ? null : address,
                                     phones: telephones['LANDLINE'] === '' && telephones['MOBILE'] === '' ? null : telephones
                                 };
                                 if (isCreate) {

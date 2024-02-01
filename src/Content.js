@@ -57,7 +57,7 @@ async function deleteMember(id) {
 
 async function getData(id = null) {
     const data = await getMember(id);
-    if (id === null) {
+    if (id === null || (caller !== null && caller['member']['id'] === data['member']['id'])) {
         setCaller(data);
     }
     setData(data);
@@ -148,7 +148,7 @@ function displayAddress (data) {
 function displayCard (ancestor, data, isDescendant = false, width = '75%', isDeletableByAdmin = false) {
     let isEditable = false;
     const isDeletableSpouse = !isDescendant && 'spouse' in caller && caller['member']['id'] === caller['member']['familyId'] && data['id'] === caller['spouse']['id'];
-    isDeletableByAdmin &&= !isDescendant && data['id'] !== caller['member']['id'];
+    isDeletableByAdmin &&= !isDescendant && data['id'] !== caller['member']['id'] && data['id'] !== '00000000-0000-0000-0000-000000000000';
     if (!isDescendant) {
         isEditable = caller['memberIsAdmin'] || data['id'] === caller['member']['id'];
         if (!isEditable && 'spouse' in caller) {
@@ -190,7 +190,7 @@ function displayCard (ancestor, data, isDescendant = false, width = '75%', isDel
                                                         setIsLoading(true);
                                                         deleteMember(data['id'])
                                                             .then(() => {
-                                                                getData(ancestor).then(() => setIsLoading(false));
+                                                                getData(data['id'] !== data['familyId'] ? data['familyId'] : ancestor).then(() => setIsLoading(false));
                                                                 setOpenSnackBarSuccess(true);
                                                             })
                                                             .catch(() => {
