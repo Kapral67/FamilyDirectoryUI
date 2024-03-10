@@ -8,7 +8,7 @@
     "@mui/icons-material": "^5.15.10",
     "@mui/material": "^5.15.10",
     "@mui/x-date-pickers": "^6.19.4",
-    "aws-amplify": "^6.0.16",
+    "aws-amplify": "^6.0.19",
     "dayjs": "^1.11.10",
     "material-ui-confirm": "^3.0.11",
     "mui-tel-input": "^5.0.0",
