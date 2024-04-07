@@ -99,7 +99,9 @@ function displayEmail (data) {
     return 'email' in data ? (
         <Grid item>
             <Typography variant={'body2'}><b>Email:</b></Typography>
-            <Link variant={'body2'} underline={'hover'} href={`mailto:${data['email']}`}>{data['email']}</Link>
+            <Link variant={'body2'} underline={'hover'} color={'inherit'} href={`mailto:${data['email']}`}>
+                {data['email']}
+            </Link>
         </Grid>
     ) : (<></>);
 }
