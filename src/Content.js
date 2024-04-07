@@ -109,28 +109,40 @@ function displayEmail (data) {
 function displayPhones (data) {
     if ('phones' in data && ('MOBILE' in data['phones'] || 'LANDLINE' in data['phones'])) {
         if ('LANDLINE' in data['phones'] && 'MOBILE' in data['phones']) {
+            const mobile = data['phones']['MOBILE'].replace(/[\s-]+/g, '');
+            const landline = data['phones']['LANDLINE'].replace(/[\s-]+/g, '');
             return (<>
                         <Grid item>
                             <Typography variant={'body2'}><b>Mobile Phone:</b></Typography>
-                            <Typography variant={'body2'}>{data['phones']['MOBILE']}</Typography>
+                            <Link variant={'body2'} underline={'hover'} color={'inherit'} href={`tel:${mobile}`}>
+                                {data['phones']['MOBILE']}
+                            </Link>
                         </Grid>
                         <Grid item>
                             <Typography variant={'body2'}><b>Landline Phone:</b></Typography>
-                            <Typography variant={'body2'}>{data['phones']['LANDLINE']}</Typography>
+                            <Link variant={'body2'} underline={'hover'} color={'inherit'} href={`tel:${landline}`}>
+                                {data['phones']['LANDLINE']}
+                            </Link>
                         </Grid>
                     </>);
         }else if ('MOBILE' in data['phones']) {
+            const mobile = data['phones']['MOBILE'].replace(/[\s-]+/g, '');
             return (
                 <Grid item>
                     <Typography variant={'body2'}><b>Mobile Phone:</b></Typography>
-                    <Typography variant={'body2'}>{data['phones']['MOBILE']}</Typography>
+                    <Link variant={'body2'} underline={'hover'} color={'inherit'} href={`tel:${mobile}`}>
+                        {data['phones']['MOBILE']}
+                    </Link>
                 </Grid>
             );
         } else {
+            const landline = data['phones']['LANDLINE'].replace(/[\s-]+/g, '');
             return (
                 <Grid item>
                     <Typography variant={'body2'}><b>Landline Phone:</b></Typography>
-                    <Typography variant={'body2'}>{data['phones']['LANDLINE']}</Typography>
+                    <Link variant={'body2'} underline={'hover'} color={'inherit'} href={`tel:${landline}`}>
+                        {data['phones']['LANDLINE']}
+                    </Link>
                 </Grid>
             );
         }
