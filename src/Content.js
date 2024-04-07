@@ -11,6 +11,7 @@ import CardHeader from '@mui/material/CardHeader';
 import CircularProgress from '@mui/material/CircularProgress';
 import Grid from '@mui/material/Grid';
 import IconButton from '@mui/material/IconButton';
+import Link from '@mui/material/Link';
 import Snackbar from '@mui/material/Snackbar';
 import Typography from '@mui/material/Typography';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
@@ -98,7 +99,7 @@ function displayEmail (data) {
     return 'email' in data ? (
         <Grid item>
             <Typography variant={'body2'}><b>Email:</b></Typography>
-            <Typography variant={'body2'}>{data['email']}</Typography>
+            <Link variant={'body2'} underline={'hover'} href={`mailto:${data['email']}`}>{data['email']}</Link>
         </Grid>
     ) : (<></>);
 }
