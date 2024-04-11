@@ -72,7 +72,7 @@ function getInitialState(data) {
         birthday: '',
         deathday: '',
         email: '',
-        address: ['', '', ''],
+        address: parseFloat(process.env.REACT_APP_BACKEND_VERSION) >= 0.71 ? ['', '', ''] : ['', ''],
         phones: {
             LANDLINE: '',
             MOBILE: ''
@@ -104,7 +104,7 @@ function getInitialState(data) {
         if ('address' in d && Array.isArray(d['address']) && d['address'].length > 1) {
             initialState['address'][0] = d['address'][0];
             initialState['address'][1] = d['address'][1];
-            if (d['address'].length > 2) {
+            if (parseFloat(process.env.REACT_APP_BACKEND_VERSION) >= 0.71 && d['address'].length > 2) {
                 initialState['address'][2] = d['address'][2];
             }
         }
@@ -150,7 +150,7 @@ export default function Input({
         birthday: initialState['birthday'] === '',
         deathday: false,
         email: false,
-        address: [false, false, false],
+        address: parseFloat(process.env.REACT_APP_BACKEND_VERSION) >= 0.71 ? [false, false, false] : [false, false],
         phones: {
             LANDLINE: false,
             MOBILE: false
@@ -368,15 +368,26 @@ export default function Input({
                                             defaultValue={address[0]}
                                             onChange={(event) => {
                                                 const addressLine1 = event.target.value.trim().replaceAll(WHITESPACE_MATCHER_REGEX, ' ');
-                                                setAddress([addressLine1, address[1], address[2]]);
-                                                setError({
-                                                    ...error,
-                                                    address: [
-                                                        addressLine1.includes(DAGGER),
-                                                        (address[1] === '' && addressLine1 !== '') || (addressLine1 === '' && address[1] !== ''),
-                                                        address[2]
-                                                    ]
-                                                });
+                                                if (parseFloat(process.env.REACT_APP_BACKEND_VERSION) >= 0.71) {
+                                                    setAddress([addressLine1, address[1], address[2]]);
+                                                    setError({
+                                                        ...error,
+                                                        address: [
+                                                            addressLine1.includes(DAGGER),
+                                                            (address[1] === '' && addressLine1 !== '') || (addressLine1 === '' && address[1] !== ''),
+                                                            address[2]
+                                                        ]
+                                                    });
+                                                } else {
+                                                    setAddress([addressLine1, address[1]]);
+                                                    setError({
+                                                        ...error,
+                                                        address: [
+                                                            addressLine1.includes(DAGGER),
+                                                            (address[1] === '' && addressLine1 !== '') || (addressLine1 === '' && address[1] !== '')
+                                                        ]
+                                                    });
+                                                }
                                             }}
                                             error={error['address'][0]}
                                             disabled={deathday !== ''}
@@ -391,15 +402,26 @@ export default function Input({
                                             defaultValue={address[1]}
                                             onChange={(event) => {
                                                 const addressLine2 = event.target.value.trim().replaceAll(WHITESPACE_MATCHER_REGEX, ' ');
-                                                setAddress([address[0], addressLine2, address[2]]);
-                                                setError({
-                                                    ...error,
-                                                    address: [
-                                                        error['address'][0],
-                                                        addressLine2.includes(DAGGER) || (addressLine2 !== '' && address[0] === '') || (addressLine2 === '' && (address[0] !== '' || address[2] !== '')),
-                                                        error['address'][2]
-                                                    ]
-                                                });
+                                                if (parseFloat(process.env.REACT_APP_BACKEND_VERSION) >= 0.71) {
+                                                    setAddress([address[0], addressLine2, address[2]]);
+                                                    setError({
+                                                        ...error,
+                                                        address: [
+                                                            error['address'][0],
+                                                            addressLine2.includes(DAGGER) || (addressLine2 !== '' && address[0] === '') || (addressLine2 === '' && (address[0] !== '' || address[2] !== '')),
+                                                            error['address'][2]
+                                                        ]
+                                                    });
+                                                } else {
+                                                    setAddress([address[0], addressLine2]);
+                                                    setError({
+                                                        ...error,
+                                                        address: [
+                                                            error['address'][0],
+                                                            addressLine2.includes(DAGGER) || (addressLine2 !== '' && address[0] === '') || (addressLine2 === '' && address[0] !== '')
+                                                        ]
+                                                    });
+                                                }
                                             }}
                                             required={address[0] !== '' || address[2] !== ''}
                                             disabled={deathday !== '' || (address[0] === '' && address[1] === '')}
@@ -530,7 +552,7 @@ export default function Input({
                                     birthday: birthday,
                                     deathday: deathday === '' ? null : deathday,
                                     email: email === '' ? null : email,
-                                    address: address[0] === '' || address[1] === '' ? null : address[2] === '' ? [address[0], address[1]] : address,
+                                    address: (address[0] === '' || address[1] === '') ? null : (parseFloat(process.env.REACT_APP_BACKEND_VERSION) < 0.71 || address[2] === '') ? [address[0], address[1]] : address,
                                     phones: telephones['LANDLINE'] === '' && telephones['MOBILE'] === '' ? null : telephones
                                 };
                                 if (isCreate) {
