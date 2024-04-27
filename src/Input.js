@@ -573,7 +573,8 @@ export default function Input({
                                     updateMember({ id: data['id'], member: member })
                                         .then(() => {
                                             closeInputState();
-                                            getData(ancestor !== null ? ancestor : data['id']).then(() => setIsLoading(false));
+                                            getData(ancestor !== null ? ancestor : data['id'] === data['familyId'] ? data['id'] : data['familyId'])
+                                                .then(() => setIsLoading(false));
                                             setOpenSnackBarSuccess(true);
                                         })
                                         .catch(() => {
