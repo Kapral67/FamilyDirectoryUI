@@ -27,7 +27,7 @@ const DELETE_MEMBER_WARNING = 'Deleting a Member is permanent. Their data and ac
 
 let setId, caller, setCaller, setData, setIsLoading, setIsEditing, confirmDelete, setOpenSnackBarError, setOpenSnackBarSuccess;
 
-async function getMember (id = null) {
+async function getMember(id = null) {
     const restOperation = get({
         apiName: 'HttpApi',
         path: '/get',
@@ -39,7 +39,7 @@ async function getMember (id = null) {
             }
         }
     });
-    const {body} = await restOperation.response;
+    const { body } = await restOperation.response;
     return await body.json();
 }
 
@@ -86,7 +86,7 @@ function displayBirthday(data) {
     );
 }
 
-function displayDeathday (data) {
+function displayDeathday(data) {
     return 'deathday' in data ? (
         <Grid item>
             <Typography variant={'body2'}><b>Deathday:</b></Typography>
@@ -95,7 +95,7 @@ function displayDeathday (data) {
     ) : (<></>);
 }
 
-function displayEmail (data) {
+function displayEmail(data) {
     return 'email' in data ? (
         <Grid item>
             <Typography variant={'body2'}><b>Email:</b></Typography>
@@ -106,26 +106,26 @@ function displayEmail (data) {
     ) : (<></>);
 }
 
-function displayPhones (data) {
+function displayPhones(data) {
     if ('phones' in data && ('MOBILE' in data['phones'] || 'LANDLINE' in data['phones'])) {
         if ('LANDLINE' in data['phones'] && 'MOBILE' in data['phones']) {
             const mobile = data['phones']['MOBILE'].replace(/[\s-]+/g, '');
             const landline = data['phones']['LANDLINE'].replace(/[\s-]+/g, '');
             return (<>
-                        <Grid item>
-                            <Typography variant={'body2'}><b>Mobile Phone:</b></Typography>
-                            <Link variant={'body2'} underline={'hover'} color={'inherit'} href={`tel:${mobile}`}>
-                                {data['phones']['MOBILE']}
-                            </Link>
-                        </Grid>
-                        <Grid item>
-                            <Typography variant={'body2'}><b>Landline Phone:</b></Typography>
-                            <Link variant={'body2'} underline={'hover'} color={'inherit'} href={`tel:${landline}`}>
-                                {data['phones']['LANDLINE']}
-                            </Link>
-                        </Grid>
-                    </>);
-        }else if ('MOBILE' in data['phones']) {
+                <Grid item>
+                    <Typography variant={'body2'}><b>Mobile Phone:</b></Typography>
+                    <Link variant={'body2'} underline={'hover'} color={'inherit'} href={`tel:${mobile}`}>
+                        {data['phones']['MOBILE']}
+                    </Link>
+                </Grid>
+                <Grid item>
+                    <Typography variant={'body2'}><b>Landline Phone:</b></Typography>
+                    <Link variant={'body2'} underline={'hover'} color={'inherit'} href={`tel:${landline}`}>
+                        {data['phones']['LANDLINE']}
+                    </Link>
+                </Grid>
+            </>);
+        } else if ('MOBILE' in data['phones']) {
             const mobile = data['phones']['MOBILE'].replace(/[\s-]+/g, '');
             return (
                 <Grid item>
@@ -151,16 +151,16 @@ function displayPhones (data) {
     }
 }
 
-function displayAddress (data) {
+function displayAddress(data) {
     return 'address' in data ? (
         <Grid item>
             <Typography variant={'body2'}><b>Address:</b></Typography>
-            <Typography variant={'body2'} style={{whiteSpace: 'pre-line'}}>{data['address'].join('\n')}</Typography>
+            <Typography variant={'body2'} style={{ whiteSpace: 'pre-line' }}>{data['address'].join('\n')}</Typography>
         </Grid>
     ) : (<></>);
 }
 
-function displayCard (ancestor, data, isDescendant = false, width = '75%', isDeletableByAdmin = false) {
+function displayCard(ancestor, data, isDescendant = false, width = '75%', isDeletableByAdmin = false) {
     let isEditable = false;
     const isDeletableSpouse = !isDescendant && 'spouse' in caller && caller['member']['id'] === caller['member']['familyId'] && data['id'] === caller['spouse']['id'];
     isDeletableByAdmin &&= !isDescendant && data['id'] !== caller['member']['id'] && data['id'] !== '00000000-0000-0000-0000-000000000000';
@@ -175,7 +175,8 @@ function displayCard (ancestor, data, isDescendant = false, width = '75%', isDel
                     const dateParts = descendant['birthday'].split('-').map(Number);
                     const date = new Date(Date.UTC(dateParts[0], dateParts[1] - 1, dateParts[2]));
                     const now = new Date();
-                    return date.getTime() > new Date(Date.UTC(now.getUTCFullYear() - +process.env.REACT_APP_AGE_OF_MAJORITY, now.getUTCMonth(), now.getUTCDate())).getTime();
+                    const editableAge = (parseFloat(process.env.REACT_APP_BACKEND_VERSION) > 0.8) ? +process.env.REACT_APP_AGE_OF_SUPER_MAJORITY : +process.env.REACT_APP_AGE_OF_MAJORITY;
+                    return date.getTime() > new Date(Date.UTC(now.getUTCFullYear() - editableAge, now.getUTCMonth(), now.getUTCDate())).getTime();
                 } else {
                     return false;
                 }
@@ -188,51 +189,51 @@ function displayCard (ancestor, data, isDescendant = false, width = '75%', isDel
                 <CardHeader
                     title={['firstName', 'middleName', 'lastName', 'suffix'].map(key => data[key]).filter(Boolean).join(' ')}
                     action={isDescendant ? (
-                                <IconButton onClick={() => setId(data['id'])}>
-                                    <TrendingDownIcon />
+                        <IconButton onClick={() => setId(data['id'])}>
+                            <TrendingDownIcon />
+                        </IconButton>
+                    ) :
+                        <>
+                            {(isDeletableByAdmin || isDeletableSpouse) && (
+                                <IconButton
+                                    onClick={() => {
+                                        confirmDelete({
+                                            confirmationText: 'Delete',
+                                            description: DELETE_MEMBER_WARNING,
+                                            confirmationButtonProps: { color: 'error' },
+                                            cancellationButtonProps: { color: 'info' }
+                                        }).then(() => {
+                                            setIsLoading(true);
+                                            deleteMember(data['id'])
+                                                .then(() => {
+                                                    getData(data['id'] !== data['familyId'] ? data['familyId'] : ancestor).then(() => setIsLoading(false));
+                                                    setOpenSnackBarSuccess(true);
+                                                })
+                                                .catch(() => {
+                                                    setIsLoading(false);
+                                                    setOpenSnackBarError(true);
+                                                });
+                                        })
+                                            .catch(() => { });
+                                    }}
+                                >
+                                    <DeleteForeverIcon />
                                 </IconButton>
-                            ) :
-                                <>
-                                    {(isDeletableByAdmin || isDeletableSpouse) && (
-                                        <IconButton
-                                            onClick={() => {
-                                                confirmDelete({
-                                                    confirmationText: 'Delete',
-                                                    description: DELETE_MEMBER_WARNING,
-                                                    confirmationButtonProps: { color: 'error' },
-                                                    cancellationButtonProps: { color: 'info' }
-                                                }).then(() => {
-                                                        setIsLoading(true);
-                                                        deleteMember(data['id'])
-                                                            .then(() => {
-                                                                getData(data['id'] !== data['familyId'] ? data['familyId'] : ancestor).then(() => setIsLoading(false));
-                                                                setOpenSnackBarSuccess(true);
-                                                            })
-                                                            .catch(() => {
-                                                                setIsLoading(false);
-                                                                setOpenSnackBarError(true);
-                                                            });
-                                                    })
-                                                    .catch(() => {});
-                                            }}
-                                        >
-                                            <DeleteForeverIcon />
-                                        </IconButton>
-                                    )}
-                                    {isEditable && (
-                                        <IconButton onClick={() => setIsEditing({ data: data, value: true })}>
-                                            <EditIcon />
-                                        </IconButton>
-                                    )}
-                                </>
+                            )}
+                            {isEditable && (
+                                <IconButton onClick={() => setIsEditing({ data: data, value: true })}>
+                                    <EditIcon />
+                                </IconButton>
+                            )}
+                        </>
                     }
                 />
                 <Grid container
-                      spacing={1}
-                      columnSpacing={{ xs: 12, sm: 8, md: 6 }}
-                      direction={'row'}
-                      justifyContent={'space-evenly'}
-                      alignItems={'center'}
+                    spacing={1}
+                    columnSpacing={{ xs: 12, sm: 8, md: 6 }}
+                    direction={'row'}
+                    justifyContent={'space-evenly'}
+                    alignItems={'center'}
                 >
                     {displayBirthday(data)}
                     {displayDeathday(data)}
@@ -322,40 +323,40 @@ export default function Content() {
                 <Alert variant={'filled'} severity={'success'}>Success!</Alert>
             </Snackbar>
             <Grid container
-                  spacing={1}
-                  columnSpacing={{ xs: 12 }}
-                  direction={'column'}
-                  alignItems={'center'}
-                  sx={{ mt: 2, mb: 2 }}
+                spacing={1}
+                columnSpacing={{ xs: 12 }}
+                direction={'column'}
+                alignItems={'center'}
+                sx={{ mt: 2, mb: 2 }}
             >
-                { isEditing['value'] || isCreatingDescendant || isCreatingSpouse ? (
+                {isEditing['value'] || isCreatingDescendant || isCreatingSpouse ? (
                     <Grid item sx={{ width: '75%' }}>
                         {isEditing['value'] && (
                             <Input data={isEditing['data']}
-                                   setInputState={setIsEditing}
-                                   setIsLoading={setIsLoading}
-                                   getData={getData}
-                                   setOpenSnackBarSuccess={setOpenSnackBarSuccess}
-                                   setOpenSnackBarError={setOpenSnackBarError}
+                                setInputState={setIsEditing}
+                                setIsLoading={setIsLoading}
+                                getData={getData}
+                                setOpenSnackBarSuccess={setOpenSnackBarSuccess}
+                                setOpenSnackBarError={setOpenSnackBarError}
                             />
                         )}
                         {isCreatingDescendant && (
                             <Input setInputState={setIsCreatingDescendant}
-                                   setIsLoading={setIsLoading}
-                                   getData={getData}
-                                   setOpenSnackBarSuccess={setOpenSnackBarSuccess}
-                                   setOpenSnackBarError={setOpenSnackBarError}
-                                   ancestor={caller['memberIsAdmin'] ? data['member']['familyId'] : null}
+                                setIsLoading={setIsLoading}
+                                getData={getData}
+                                setOpenSnackBarSuccess={setOpenSnackBarSuccess}
+                                setOpenSnackBarError={setOpenSnackBarError}
+                                ancestor={caller['memberIsAdmin'] ? data['member']['familyId'] : null}
                             />
                         )}
                         {isCreatingSpouse && (
                             <Input setInputState={setIsCreatingSpouse}
-                                   setIsLoading={setIsLoading}
-                                   getData={getData}
-                                   setOpenSnackBarSuccess={setOpenSnackBarSuccess}
-                                   setOpenSnackBarError={setOpenSnackBarError}
-                                   isSpouse={true}
-                                   ancestor={caller['memberIsAdmin'] ? data['member']['familyId'] : null}
+                                setIsLoading={setIsLoading}
+                                getData={getData}
+                                setOpenSnackBarSuccess={setOpenSnackBarSuccess}
+                                setOpenSnackBarError={setOpenSnackBarError}
+                                isSpouse={true}
+                                ancestor={caller['memberIsAdmin'] ? data['member']['familyId'] : null}
                             />
                         )}
                     </Grid>
@@ -377,10 +378,10 @@ export default function Content() {
                                 <Grid item xs={12} sm={'spouse' in data ? 6 : 12}>
                                     {!('spouse' in data) && (caller['memberIsAdmin'] || caller['member']['familyId'] === data['member']['familyId']) ? (
                                         <Grid container
-                                              spacing={1}
-                                              direction={'row'}
-                                              justifyContent={'center'}
-                                              alignItems={'center'}
+                                            spacing={1}
+                                            direction={'row'}
+                                            justifyContent={'center'}
+                                            alignItems={'center'}
                                         >
                                             <Grid item xs={9}>
                                                 {displayCard(data['ancestor'], data['member'], false, 'fit-content', caller['memberIsAdmin'] && !('descendants' in data))}
@@ -396,11 +397,11 @@ export default function Content() {
                                             </Grid>
                                         </Grid>
                                     ) : 'spouse' in data && data['spouse']['id'] === caller['member']['id']
-                                            ? displayCard(data['ancestor'], data['spouse'], false, '75%', caller['memberIsAdmin'] && data['spouse']['id'] !== data['spouse']['familyId'])
-                                            : displayCard(data['ancestor'], data['member'], false, '75%', caller['memberIsAdmin'] && (data['member']['id'] !== data['member']['familyId'] || (!('spouse' in data) && !('descendants' in data))))
+                                        ? displayCard(data['ancestor'], data['spouse'], false, '75%', caller['memberIsAdmin'] && data['spouse']['id'] !== data['spouse']['familyId'])
+                                        : displayCard(data['ancestor'], data['member'], false, '75%', caller['memberIsAdmin'] && (data['member']['id'] !== data['member']['familyId'] || (!('spouse' in data) && !('descendants' in data))))
                                     }
                                 </Grid>
-                                { 'spouse' in data && (
+                                {'spouse' in data && (
                                     <Grid item xs={12} sm={6}>
                                         {data['spouse']['id'] === caller['member']['id']
                                             ? displayCard(data['ancestor'], data['member'], false, '75%', caller['memberIsAdmin'] && (data['member']['id'] !== data['member']['familyId'] || (!('spouse' in data) && !('descendants' in data))))
@@ -413,12 +414,12 @@ export default function Content() {
                         {'descendants' in data && (
                             <>
                                 <Grid item xs={12} style={{ alignSelf: 'stretch' }}>
-                                    <br/><hr style={{ width: '50%' }}/><br/>
+                                    <br /><hr style={{ width: '50%' }} /><br />
                                 </Grid>
                                 <Grid item>
                                     <Grid container
-                                          spacing={1}
-                                          justifyContent={'center'}
+                                        spacing={1}
+                                        justifyContent={'center'}
                                     >
                                         {data['descendants'].map((descendant) => (
                                             <Grid item key={descendant['id']}>
