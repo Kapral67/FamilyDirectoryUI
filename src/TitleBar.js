@@ -3,7 +3,7 @@ import { get } from 'aws-amplify/api';
 import { signOut } from 'aws-amplify/auth';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
+import Link from '@mui/material/Link';
 import CircularProgress from '@mui/material/CircularProgress';
 import IconButton from '@mui/material/IconButton';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -38,10 +38,10 @@ export default function TitleBar() {
     return (
         <AppBar position={'static'}>
             <Toolbar>
-                <Typography variant={'h6'} sx={{ flexGrow: 1 }}>
+                <Link variant={'h6'} sx={{ flexGrow: 1 }} underline={'none'} color={'inherit'} href={'/'}>
                     {`${process.env.REACT_APP_SURNAME} Family Directory`}
-                </Typography>
-                { isDownloading ? (
+                </Link>
+                {isDownloading ? (
                     <IconButton disabled>
                         <CircularProgress color={'secondary'} size={'2rem'} />
                     </IconButton>
