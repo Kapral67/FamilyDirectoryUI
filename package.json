@@ -9,7 +9,7 @@
     "@mui/material": "^5.16.6",
     "@mui/x-date-pickers": "^6.20.2",
     "aws-amplify": "^6.8.0",
-    "dayjs": "^1.11.12",
+    "dayjs": "^1.11.13",
     "material-ui-confirm": "^3.0.16",
     "mui-tel-input": "^6.0.1",
     "react": "^18.3.1",
