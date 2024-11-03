@@ -20,6 +20,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
 import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import Tooltip from '@mui/material/Tooltip';
 
 const SNACKBAR_ANCHOR = { vertical: 'top', horizontal: 'center' };
 const SNACKBAR_MARGIN = { mt: '64px' };
@@ -189,41 +190,47 @@ function displayCard(ancestor, data, isDescendant = false, width = '75%', isDele
                 <CardHeader
                     title={['firstName', 'middleName', 'lastName', 'suffix'].map(key => data[key]).filter(Boolean).join(' ')}
                     action={isDescendant ? (
-                        <IconButton onClick={() => setId(data['id'])}>
-                            <TrendingDownIcon />
-                        </IconButton>
+                        <Tooltip title="Go to Descendant">
+                            <IconButton onClick={() => setId(data['id'])}>
+                                <TrendingDownIcon />
+                            </IconButton>
+                        </Tooltip>
                     ) :
                         <>
                             {(isDeletableByAdmin || isDeletableSpouse) && (
-                                <IconButton
-                                    onClick={() => {
-                                        confirmDelete({
-                                            confirmationText: 'Delete',
-                                            description: DELETE_MEMBER_WARNING,
-                                            confirmationButtonProps: { color: 'error' },
-                                            cancellationButtonProps: { color: 'info' }
-                                        }).then(() => {
-                                            setIsLoading(true);
-                                            deleteMember(data['id'])
-                                                .then(() => {
-                                                    getData(data['id'] !== data['familyId'] ? data['familyId'] : ancestor).then(() => setIsLoading(false));
-                                                    setOpenSnackBarSuccess(true);
-                                                })
-                                                .catch(() => {
-                                                    setIsLoading(false);
-                                                    setOpenSnackBarError(true);
-                                                });
-                                        })
-                                            .catch(() => { });
-                                    }}
-                                >
-                                    <DeleteForeverIcon />
-                                </IconButton>
+                                <Tooltip title="Delete">
+                                    <IconButton
+                                        onClick={() => {
+                                            confirmDelete({
+                                                confirmationText: 'Delete',
+                                                description: DELETE_MEMBER_WARNING,
+                                                confirmationButtonProps: { color: 'error' },
+                                                cancellationButtonProps: { color: 'info' }
+                                            }).then(() => {
+                                                setIsLoading(true);
+                                                deleteMember(data['id'])
+                                                    .then(() => {
+                                                        getData(data['id'] !== data['familyId'] ? data['familyId'] : ancestor).then(() => setIsLoading(false));
+                                                        setOpenSnackBarSuccess(true);
+                                                    })
+                                                    .catch(() => {
+                                                        setIsLoading(false);
+                                                        setOpenSnackBarError(true);
+                                                    });
+                                            })
+                                                .catch(() => { });
+                                        }}
+                                    >
+                                        <DeleteForeverIcon />
+                                    </IconButton>
+                                </Tooltip>
                             )}
                             {isEditable && (
-                                <IconButton onClick={() => setIsEditing({ data: data, value: true })}>
-                                    <EditIcon />
-                                </IconButton>
+                                <Tooltip title="Edit">
+                                    <IconButton onClick={() => setIsEditing({ data: data, value: true })}>
+                                        <EditIcon />
+                                    </IconButton>
+                                </Tooltip>
                             )}
                         </>
                     }
@@ -364,13 +371,15 @@ export default function Content() {
                     <>
                         {data['ancestor'] !== data['member']['familyId'] && (
                             <Grid item>
-                                <IconButton
-                                    size={'large'}
-                                    color={'inherit'}
-                                    onClick={() => setId(data['ancestor'])}
-                                >
-                                    <ArrowUpwardIcon />
-                                </IconButton>
+                                <Tooltip title="Go to Ancestor">
+                                    <IconButton
+                                        size={'large'}
+                                        color={'inherit'}
+                                        onClick={() => setId(data['ancestor'])}
+                                    >
+                                        <ArrowUpwardIcon />
+                                    </IconButton>
+                                </Tooltip>
                             </Grid>
                         )}
                         <Grid item>
@@ -387,13 +396,15 @@ export default function Content() {
                                                 {displayCard(data['ancestor'], data['member'], false, 'fit-content', caller['memberIsAdmin'] && !('descendants' in data))}
                                             </Grid>
                                             <Grid item xs={1}>
-                                                <IconButton
-                                                    size={'large'}
-                                                    color={'inherit'}
-                                                    onClick={() => setIsCreatingSpouse(true)}
-                                                >
-                                                    <PersonAddAlt1Icon />
-                                                </IconButton>
+                                                <Tooltip title="Add Spouse">
+                                                    <IconButton
+                                                        size={'large'}
+                                                        color={'inherit'}
+                                                        onClick={() => setIsCreatingSpouse(true)}
+                                                    >
+                                                        <PersonAddAlt1Icon />
+                                                    </IconButton>
+                                                </Tooltip>
                                             </Grid>
                                         </Grid>
                                     ) : 'spouse' in data && data['spouse']['id'] === caller['member']['id']
@@ -432,13 +443,15 @@ export default function Content() {
                         )}
                         {(caller['memberIsAdmin'] || data['member']['familyId'] === caller['member']['familyId']) && (
                             <Grid item>
-                                <IconButton
-                                    size={'large'}
-                                    color={'inherit'}
-                                    onClick={() => setIsCreatingDescendant(true)}
-                                >
-                                    <GroupAddIcon />
-                                </IconButton>
+                                <Tooltip title="Add Descendant">
+                                    <IconButton
+                                        size={'large'}
+                                        color={'inherit'}
+                                        onClick={() => setIsCreatingDescendant(true)}
+                                    >
+                                        <GroupAddIcon />
+                                    </IconButton>
+                                </Tooltip>
                             </Grid>
                         )}
                     </>

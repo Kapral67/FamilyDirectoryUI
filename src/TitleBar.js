@@ -8,6 +8,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import IconButton from '@mui/material/IconButton';
 import LogoutIcon from '@mui/icons-material/Logout';
 import DownloadIcon from '@mui/icons-material/Download';
+import Tooltip from '@mui/material/Tooltip';
 import { useState } from 'react';
 
 export default function TitleBar() {
@@ -46,23 +47,27 @@ export default function TitleBar() {
                         <CircularProgress color={'secondary'} size={'2rem'} />
                     </IconButton>
                 ) : (
+                    <Tooltip title="Download">
+                        <IconButton
+                            size={'large'}
+                            aria-label={'Download'}
+                            color={'inherit'}
+                            onClick={handleDownloadClick}
+                        >
+                            <DownloadIcon />
+                        </IconButton>
+                    </Tooltip>
+                )}
+                <Tooltip title="Logout">
                     <IconButton
                         size={'large'}
-                        aria-label={'Download'}
+                        aria-label={'Logout'}
                         color={'inherit'}
-                        onClick={handleDownloadClick}
+                        onClick={() => signOut({ global: true })}
                     >
-                        <DownloadIcon />
+                        <LogoutIcon />
                     </IconButton>
-                )}
-                <IconButton
-                    size={'large'}
-                    aria-label={'Logout'}
-                    color={'inherit'}
-                    onClick={() => signOut({ global: true })}
-                >
-                    <LogoutIcon />
-                </IconButton>
+                </Tooltip>
             </Toolbar>
         </AppBar>
     );

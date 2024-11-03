@@ -15,6 +15,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import EditOffIcon from '@mui/icons-material/EditOff';
 import SaveAsIcon from '@mui/icons-material/SaveAs';
 import PersonAddDisabledIcon from '@mui/icons-material/PersonAddDisabled';
+import Tooltip from '@mui/material/Tooltip';
 
 const NAME_VALIDATOR_REGEX = /^[A-Za-z\-'_]+$/;
 const NAME_VALIDATOR_REGEX_OPT = /^[A-Za-z\-'_]*$/;
@@ -48,11 +49,11 @@ async function createMember(request) {
 
 function getMaxDate() {
     const now = new Date();
-    return dayjs(`${now.getUTCFullYear()+1}-${now.getUTCMonth()+1}-${now.getUTCDate()}`);
+    return dayjs(`${now.getUTCFullYear() + 1}-${now.getUTCMonth() + 1}-${now.getUTCDate()}`);
 }
 
 function getFormattedDate(date) {
-    let month = date.month()+1;
+    let month = date.month() + 1;
     if (month < 10) {
         month = `0${month}`;
     }
@@ -121,14 +122,14 @@ function getInitialState(data) {
 }
 
 export default function Input({
-                                  setInputState,
-                                  setIsLoading,
-                                  getData,
-                                  setOpenSnackBarSuccess,
-                                  setOpenSnackBarError,
-                                  data = null,
-                                  isSpouse = false,
-                                  ancestor = null
+    setInputState,
+    setIsLoading,
+    getData,
+    setOpenSnackBarSuccess,
+    setOpenSnackBarError,
+    data = null,
+    isSpouse = false,
+    ancestor = null
 }) {
     const isCreate = data === null;
     const initialState = getInitialState(data);
@@ -169,29 +170,29 @@ export default function Input({
         return false;
     };
     const isInitialState = () => JSON.stringify(firstName) === JSON.stringify(initialState['firstName']) &&
-                                JSON.stringify(middleName) === JSON.stringify(initialState['middleName']) &&
-                                JSON.stringify(lastName) === JSON.stringify(initialState['lastName']) &&
-                                JSON.stringify(suffix) === JSON.stringify(initialState['suffix']) &&
-                                JSON.stringify(birthday) === JSON.stringify(initialState['birthday']) &&
-                                JSON.stringify(deathday) === JSON.stringify(initialState['deathday']) &&
-                                JSON.stringify(email) === JSON.stringify(initialState['email']) &&
-                                JSON.stringify(address) === JSON.stringify(initialState['address']) &&
-                                JSON.stringify(phones) === JSON.stringify(initialState['phones']);
+        JSON.stringify(middleName) === JSON.stringify(initialState['middleName']) &&
+        JSON.stringify(lastName) === JSON.stringify(initialState['lastName']) &&
+        JSON.stringify(suffix) === JSON.stringify(initialState['suffix']) &&
+        JSON.stringify(birthday) === JSON.stringify(initialState['birthday']) &&
+        JSON.stringify(deathday) === JSON.stringify(initialState['deathday']) &&
+        JSON.stringify(email) === JSON.stringify(initialState['email']) &&
+        JSON.stringify(address) === JSON.stringify(initialState['address']) &&
+        JSON.stringify(phones) === JSON.stringify(initialState['phones']);
     const closeInputState = () => setInputState(isCreate ? false : { data: null, value: false });
     return (
         <Card sx={{ width: '100%', margin: 'auto', display: 'block' }}>
             <CardContent>
                 <form>
                     <Grid container
-                          spacing={2}
-                          direction={'column'}
-                          justifyContent={'space-evenly'}
+                        spacing={2}
+                        direction={'column'}
+                        justifyContent={'space-evenly'}
                     >
                         <Grid item>
                             <Grid container
-                                  spacing={2}
-                                  direction={'row'}
-                                  justifyContent={'space-evenly'}
+                                spacing={2}
+                                direction={'row'}
+                                justifyContent={'space-evenly'}
                             >
                                 <Grid item>
                                     <FormControl fullWidth>
@@ -523,69 +524,73 @@ export default function Input({
                     </Grid>
                 </form>
                 <Grid container justifyContent={'space-between'}>
-                    <Grid item xs={12} style={{ alignSelf: 'stretch' }}><br/></Grid>
+                    <Grid item xs={12} style={{ alignSelf: 'stretch' }}><br /></Grid>
                     <Grid item>
-                        <IconButton onClick={closeInputState}>
-                            {isCreate ? (
-                                <PersonAddDisabledIcon />
-                            ) : (
-                                <EditOffIcon />
-                            )}
-                        </IconButton>
+                        <Tooltip title="Cancel Changes">
+                            <IconButton onClick={closeInputState}>
+                                {isCreate ? (
+                                    <PersonAddDisabledIcon />
+                                ) : (
+                                    <EditOffIcon />
+                                )}
+                            </IconButton>
+                        </Tooltip>
                     </Grid>
                     <Grid item>
-                        <IconButton
-                            disabled={isInitialState() || hasError(error)}
-                            onClick={() => {
-                                let telephones = JSON.parse(JSON.stringify(phones));
-                                if (EMPTY_PHONE_NUMBER_VALIDATOR_REGEX.test(telephones['MOBILE'])) {
-                                    telephones['MOBILE'] = '';
-                                }
-                                if (EMPTY_PHONE_NUMBER_VALIDATOR_REGEX.test(telephones['LANDLINE'])) {
-                                    telephones['LANDLINE'] = '';
-                                }
-                                const member = {
-                                    firstName: firstName,
-                                    middleName: middleName === '' ? null : middleName,
-                                    lastName: lastName,
-                                    suffix: suffix === '' ? null : suffix,
-                                    birthday: birthday,
-                                    deathday: deathday === '' ? null : deathday,
-                                    email: email === '' ? null : email,
-                                    address: (address[0] === '' || address[1] === '') ? null : (parseFloat(process.env.REACT_APP_BACKEND_VERSION) < 0.71 || address[2] === '') ? [address[0], address[1]] : address,
-                                    phones: telephones['LANDLINE'] === '' && telephones['MOBILE'] === '' ? null : telephones
-                                };
-                                if (isCreate) {
-                                    setIsLoading(true);
-                                    const request = { member: member, isSpouse: isSpouse, ...(parseFloat(process.env.REACT_APP_BACKEND_VERSION) > 0.5 && { ancestor: ancestor }) };
-                                    createMember(request)
-                                        .then(() => {
-                                            closeInputState();
-                                            getData(ancestor).then(() => setIsLoading(false));
-                                            setOpenSnackBarSuccess(true);
-                                        })
-                                        .catch(() => {
-                                            setIsLoading(false);
-                                            setOpenSnackBarError(true);
-                                        });
-                                } else {
-                                    setIsLoading(true);
-                                    updateMember({ id: data['id'], member: member })
-                                        .then(() => {
-                                            closeInputState();
-                                            getData(ancestor !== null ? ancestor : data['familyId'])
-                                                .then(() => setIsLoading(false));
-                                            setOpenSnackBarSuccess(true);
-                                        })
-                                        .catch(() => {
-                                            setIsLoading(false);
-                                            setOpenSnackBarError(true);
-                                        });
-                                }
-                            }}
-                        >
-                            <SaveAsIcon />
-                        </IconButton>
+                        <Tooltip title="Save Changes">
+                            <IconButton
+                                disabled={isInitialState() || hasError(error)}
+                                onClick={() => {
+                                    let telephones = JSON.parse(JSON.stringify(phones));
+                                    if (EMPTY_PHONE_NUMBER_VALIDATOR_REGEX.test(telephones['MOBILE'])) {
+                                        telephones['MOBILE'] = '';
+                                    }
+                                    if (EMPTY_PHONE_NUMBER_VALIDATOR_REGEX.test(telephones['LANDLINE'])) {
+                                        telephones['LANDLINE'] = '';
+                                    }
+                                    const member = {
+                                        firstName: firstName,
+                                        middleName: middleName === '' ? null : middleName,
+                                        lastName: lastName,
+                                        suffix: suffix === '' ? null : suffix,
+                                        birthday: birthday,
+                                        deathday: deathday === '' ? null : deathday,
+                                        email: email === '' ? null : email,
+                                        address: (address[0] === '' || address[1] === '') ? null : (parseFloat(process.env.REACT_APP_BACKEND_VERSION) < 0.71 || address[2] === '') ? [address[0], address[1]] : address,
+                                        phones: telephones['LANDLINE'] === '' && telephones['MOBILE'] === '' ? null : telephones
+                                    };
+                                    if (isCreate) {
+                                        setIsLoading(true);
+                                        const request = { member: member, isSpouse: isSpouse, ...(parseFloat(process.env.REACT_APP_BACKEND_VERSION) > 0.5 && { ancestor: ancestor }) };
+                                        createMember(request)
+                                            .then(() => {
+                                                closeInputState();
+                                                getData(ancestor).then(() => setIsLoading(false));
+                                                setOpenSnackBarSuccess(true);
+                                            })
+                                            .catch(() => {
+                                                setIsLoading(false);
+                                                setOpenSnackBarError(true);
+                                            });
+                                    } else {
+                                        setIsLoading(true);
+                                        updateMember({ id: data['id'], member: member })
+                                            .then(() => {
+                                                closeInputState();
+                                                getData(ancestor !== null ? ancestor : data['familyId'])
+                                                    .then(() => setIsLoading(false));
+                                                setOpenSnackBarSuccess(true);
+                                            })
+                                            .catch(() => {
+                                                setIsLoading(false);
+                                                setOpenSnackBarError(true);
+                                            });
+                                    }
+                                }}
+                            >
+                                <SaveAsIcon />
+                            </IconButton>
+                        </Tooltip>
                     </Grid>
                 </Grid>
             </CardContent>
