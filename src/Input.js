@@ -20,7 +20,7 @@ import Tooltip from '@mui/material/Tooltip';
 const NAME_VALIDATOR_REGEX = /^[A-Za-z\-'_]+$/;
 const NAME_VALIDATOR_REGEX_OPT = /^[A-Za-z\-'_]*$/;
 const SPECIAL_CHAR_VALIDATOR_REGEX = /^['_-]+[A-Za-z\-'_]*$/;
-const EMPTY_PHONE_NUMBER_VALIDATOR_REGEX = /^\+[0-9]+$/;
+const EMPTY_PHONE_NUMBER_VALIDATOR_REGEX = /^(?:\+[0-9]+)?$/;
 const WHITESPACE_MATCHER_REGEX = /\s/g;
 const MIN_DATE = dayjs('1000-01-01');
 const DAGGER = '†';
