@@ -1,6 +1,7 @@
 
 import Input from './Input';
-import { get, post } from 'aws-amplify/api';
+import { get, post, ApiError } from 'aws-amplify/api';
+import { signOut } from 'aws-amplify/auth';
 import { useConfirm } from 'material-ui-confirm';
 import { useEffect, useState } from 'react';
 import Alert from '@mui/material/Alert';
@@ -29,19 +30,25 @@ const DELETE_MEMBER_WARNING = 'Deleting a Member is permanent. Their data and ac
 let setId, caller, setCaller, setData, setIsLoading, setIsEditing, confirmDelete, setOpenSnackBarError, setOpenSnackBarSuccess;
 
 async function getMember(id = null) {
-    const restOperation = get({
-        apiName: 'HttpApi',
-        path: '/get',
-        ...id && {
-            options: {
-                queryParams: {
-                    id: `${id}`
+    try {
+        const restOperation = get({
+            apiName: 'HttpApi',
+            path: '/get',
+            ...id && {
+                options: {
+                    queryParams: {
+                        id: `${id}`
+                    }
                 }
             }
+        });
+        const { body } = await restOperation.response;
+        return await body.json();
+    } catch (error) {
+        if (error instanceof ApiError && error.response?.statusCode === 401) {
+            signOut({ global: true });
         }
-    });
-    const { body } = await restOperation.response;
-    return await body.json();
+    }
 }
 
 async function deleteMember(id) {
