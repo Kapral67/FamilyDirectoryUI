@@ -9,25 +9,25 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { createTheme, ThemeProvider } from '@mui/material';
 
-document.title = `${process.env.REACT_APP_SURNAME} Family Directory`;
+document.title = `${import.meta.env.REACT_APP_SURNAME} Family Directory`;
 
 Amplify.configure({
     Auth: {
         Cognito: {
-            userPoolId: process.env.REACT_APP_USER_POOL_ID,
-            userPoolClientId: process.env.REACT_APP_CLIENT_ID,
+            userPoolId: import.meta.env.REACT_APP_USER_POOL_ID,
+            userPoolClientId: import.meta.env.REACT_APP_CLIENT_ID,
             signUpVerificationMethod: 'code',
             loginWith: {
                 oauth: {
-                    domain: process.env.REACT_APP_AUTH_DOMAIN,
+                    domain: import.meta.env.REACT_APP_AUTH_DOMAIN,
                     scopes: [
                         'email',
                         'profile',
                         'openid',
                         'aws.cognito.signin.user.admin',
                     ],
-                    redirectSignIn: [process.env.REACT_APP_REDIRECT_URI],
-                    redirectSignOut: [process.env.REACT_APP_REDIRECT_URI],
+                    redirectSignIn: [import.meta.env.REACT_APP_REDIRECT_URI],
+                    redirectSignOut: [import.meta.env.REACT_APP_REDIRECT_URI],
                     responseType: 'code',
                 },
             }
@@ -36,8 +36,8 @@ Amplify.configure({
     API: {
         REST: {
             HttpApi: {
-                endpoint: process.env.REACT_APP_API_DOMAIN,
-                region: process.env.REACT_APP_AWS_REGION
+                endpoint: import.meta.env.REACT_APP_API_DOMAIN,
+                region: import.meta.env.REACT_APP_AWS_REGION
             }
         }
     }

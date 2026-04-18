@@ -183,7 +183,7 @@ function displayCard(ancestor, data, isDescendant = false, width = '75%', isDele
                     const dateParts = descendant['birthday'].split('-').map(Number);
                     const date = new Date(Date.UTC(dateParts[0], dateParts[1] - 1, dateParts[2]));
                     const now = new Date();
-                    const editableAge = (parseFloat(process.env.REACT_APP_BACKEND_VERSION) > 0.8) ? +process.env.REACT_APP_AGE_OF_SUPER_MAJORITY : +process.env.REACT_APP_AGE_OF_MAJORITY;
+                    const editableAge = (parseFloat(import.meta.env.REACT_APP_BACKEND_VERSION) > 0.8) ? +import.meta.env.REACT_APP_AGE_OF_SUPER_MAJORITY : +import.meta.env.REACT_APP_AGE_OF_MAJORITY;
                     return date.getTime() > new Date(Date.UTC(now.getUTCFullYear() - editableAge, now.getUTCMonth(), now.getUTCDate())).getTime();
                 } else {
                     return false;

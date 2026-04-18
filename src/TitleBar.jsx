@@ -26,7 +26,7 @@ export default function TitleBar() {
             const blob = await response.body.blob();
             let link = document.createElement('a');
             link.href = window.URL.createObjectURL(blob);
-            link.download = `${process.env.REACT_APP_SURNAME}` + (response.headers['content-type'] === 'application/zip' ? 'Family.zip' : 'FamilyDirectory.pdf');
+            link.download = `${import.meta.env.REACT_APP_SURNAME}` + (response.headers['content-type'] === 'application/zip' ? 'Family.zip' : 'FamilyDirectory.pdf');
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -40,7 +40,7 @@ export default function TitleBar() {
         <AppBar position={'static'}>
             <Toolbar>
                 <Link variant={'h6'} sx={{ flexGrow: 1 }} underline={'none'} color={'inherit'} href={'/'}>
-                    {`${process.env.REACT_APP_SURNAME} Family Directory`}
+                    {`${import.meta.env.REACT_APP_SURNAME} Family Directory`}
                 </Link>
                 {isDownloading ? (
                     <IconButton disabled>
