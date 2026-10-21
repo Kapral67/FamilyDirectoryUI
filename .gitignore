@@ -25,3 +25,9 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# e2e
+/build-e2e
+/test-results
+/playwright-report
+/blob-report

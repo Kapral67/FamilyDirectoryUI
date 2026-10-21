@@ -7,9 +7,9 @@
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^5.18.0",
     "@mui/material": "^5.18.0",
-    "@mui/x-date-pickers": "^8.29.2",
-    "aws-amplify": "^6.18.0",
-    "dayjs": "^1.11.21",
+    "@mui/x-date-pickers": "^8.29.5",
+    "aws-amplify": "^6.22.2",
+    "dayjs": "^1.11.23",
     "material-ui-confirm": "^3.0.16",
     "mui-tel-input": "^6.0.1",
     "react": "^18.3.1",
@@ -25,7 +25,8 @@
     "analyze": "source-map-explorer 'build/static/js/*.js'",
     "start": "vite --port 3000 --strictPort",
     "build": "vite build",
-    "serve": "vite preview --port 3000 --strictPort"
+    "serve": "vite preview --port 3000 --strictPort",
+    "test:e2e": "playwright test --headed"
   },
   "eslintConfig": {
     "extends": [
@@ -46,9 +47,8 @@
     ]
   },
   "devDependencies": {
-    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-    "@vitejs/plugin-react": "^6.0.3",
-    "eslint-config-react-app": "^7.0.1",
-    "vite": "^8.1.4"
+    "@playwright/test": "^1.64.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "vite": "^8.3.4"
   }
 }
