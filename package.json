@@ -7,7 +7,7 @@
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^5.18.0",
     "@mui/material": "^5.18.0",
-    "@mui/x-date-pickers": "^8.29.2",
+    "@mui/x-date-pickers": "^8.29.5",
     "aws-amplify": "^6.18.0",
     "dayjs": "^1.11.21",
     "material-ui-confirm": "^3.0.16",
